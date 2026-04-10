@@ -1,0 +1,173 @@
+import { useState } from "react";
+import { User, Lock, Eye, EyeOff, Box, CheckCircle, Mail } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "sonner";
+
+const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [users, setUser] = useState({
+    email: "",
+    password: ""
+  })
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const user = await axios.post('http://localhost:8000/login', users, { withCredentials: true })
+      toast.success(user.data.message)
+      navigate('/dashboard')
+    } catch (error) {
+      toast.error(error.response?.data?.error)
+    }
+  
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col md:flex-row">
+
+      {/* LEFT SIDE - INFO PANEL */}
+      <div className="md:w-1/2 bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white flex items-center justify-center p-10">
+
+        <div className="max-w-md">
+
+          {/* Logo */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <Box className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-widest">SIMS</h1>
+          </div>
+
+          {/* Title */}
+          <h2 className="text-2xl font-bold mb-4">
+            Stock Inventory Management System
+          </h2>
+
+          <p className="text-blue-100 mb-6">
+            Manage your spare parts, stock in, stock out, and reporting in one
+            powerful system built for speed, accuracy, and efficiency.
+          </p>
+
+          {/* Features */}
+          <div className="space-y-3">
+
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-orange-700" />
+              <span>Real-time inventory tracking</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-orange-700" />
+              <span>Stock in & stock out management</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-orange-700" />
+              <span>Advanced reporting system</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-orange-700" />
+              <span>Secure system access</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT SIDE - LOGIN FORM */}
+      <div className="md:w-1/2 flex items-center justify-center bg-gradient-to-br from-blue-200 via-indigo-200 to-purple-200 p-6">
+
+        {/* Card */}
+        <div className="w-[380px] bg-white rounded-2xl shadow-2xl overflow-hidden">
+
+          {/* Header */}
+          <div className="bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 p-6 flex flex-col items-center">
+            <div className="bg-cyan-800 p-3 rounded-xl mb-3">
+              <Box className="text-white w-10 h-10" />
+            </div>
+            <h1 className="text-white text-3xl font-bold tracking-widest">
+              SIMS
+            </h1>
+          </div>
+
+          {/* Body */}
+          <div className="p-6">
+
+            <h2 className="text-center text-xl font-semibold text-gray-800">
+              Login to SIMS
+            </h2>
+
+            <p className="text-center text-sm text-gray-500 mb-6">
+              Stock Inventory Management System
+            </p>
+
+            <form onSubmit={handleLogin}>
+
+              {/* Username */}
+              <div className="relative mb-4">
+                <Mail className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Email"
+                  value={users.email}
+                  onChange={(e)=>setUser({...users, email: e.target.value})}
+                  className="w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+
+              {/* Password */}
+              <div className="relative mb-4">
+                <Lock className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={users.password}
+                  onChange={(e)=>setUser({...users, password: e.target.value})}
+                  className="w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+
+                <div
+                  className="absolute right-3 top-3 cursor-pointer text-gray-500"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </div>
+              </div>
+
+              {/* Options */}
+              <div className="flex items-center justify-between text-sm mb-5">
+                <label className="flex items-center gap-2 text-gray-600">
+                  <input type="checkbox" className="accent-blue-600" />
+                  Remember me
+                </label>
+
+                <a href="#" className="text-blue-600 hover:underline">
+                  Forgot Password?
+                </a>
+              </div>
+
+              {/* Button */}
+              <button className="w-full bg-gradient-to-r from-cyan-600 to-cyan-800 text-white py-2 rounded-lg font-semibold hover:opacity-90 transition">
+                Login
+              </button>
+            </form>
+
+            {/* Footer */}
+            <p className="text-center text-sm mt-5 text-gray-600">
+              Don’t have an account?{" "}
+              <Link to="/register" className="text-blue-600 font-medium hover:underline">
+                Sign up
+              </Link>
+            </p>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
