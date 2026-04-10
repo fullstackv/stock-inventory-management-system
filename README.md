@@ -142,21 +142,11 @@ cd SERVER
 npm install
 ```
 
-Create `.env` file:
-
-```
-PORT=8000
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=sims
-SESSION_SECRET=your_secret_key
-```
 
 Start backend:
 
 ```bash
-npm start
+npm run dev
 ```
 
 ---
@@ -255,7 +245,7 @@ npm run dev
 
 ## 👨‍💻 Author
 
-**Gtan⚡**
+**Jean Marie Vianney⚡**
 Trainer at ACODES MUSHISHIRO TSS
 
 ---
