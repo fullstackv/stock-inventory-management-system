@@ -34,12 +34,10 @@ const Register = () => {
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
 
-      {/* LEFT SIDE - INFO PANEL */}
       <div className="md:w-1/2 bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white flex items-center justify-center p-10">
 
         <div className="max-w-md">
 
-          {/* Logo */}
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-white/20 p-3 rounded-xl">
               <Box className="w-8 h-8 text-white" />
@@ -47,7 +45,6 @@ const Register = () => {
             <h1 className="text-3xl font-bold tracking-widest">SIMS</h1>
           </div>
 
-          {/* Title */}
           <h2 className="text-2xl font-bold mb-4 text-cyan-500">
             Stock Inventory Management System
           </h2>
@@ -57,7 +54,6 @@ const Register = () => {
             powerful system designed for efficiency and accuracy.
           </p>
 
-          {/* Features */}
           <div className="space-y-3">
 
             <div className="flex items-center gap-2">
@@ -84,12 +80,10 @@ const Register = () => {
         </div>
       </div>
 
-      {/* RIGHT SIDE - FORM */}
       <div className="md:w-1/2 flex items-center justify-center bg-gray-100 p-6">
 
         <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
 
-          {/* Header */}
           <div className="bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 p-6 flex flex-col items-center">
             <div className="bg-cyan-800 p-3 rounded-xl mb-3">
               <Box className="text-white w-10 h-10" />
@@ -99,7 +93,6 @@ const Register = () => {
             </h1>
           </div>
 
-          {/* Body */}
           <div className="p-6">
 
             <p className="text-center text-sm text-gray-500 mb-6">
@@ -108,7 +101,6 @@ const Register = () => {
 
             <form onSubmit={handleRegister}>
 
-              {/* Full Name */}
               <div className="relative mb-4">
                 <User className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
                 <input
@@ -121,7 +113,6 @@ const Register = () => {
                 />
               </div>
 
-              {/* Email */}
               <div className="relative mb-4">
                 <Mail className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
                 <input
@@ -134,7 +125,6 @@ const Register = () => {
                 />
               </div>
 
-              {/* Phone */}
               <div className="relative mb-4">
                 <Phone className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
                 <input
@@ -147,7 +137,6 @@ const Register = () => {
                 />
               </div>
 
-              {/* Password */}
               <div className="relative mb-4">
                 <Lock className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
                 <input
@@ -167,13 +156,11 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Button */}
               <button className="w-full bg-gradient-to-r from-cyan-600 to-cyan-800 text-white py-2 rounded-lg font-semibold hover:opacity-90 transition">
                 Create Account
               </button>
             </form>
 
-            {/* Footer */}
             <p className="text-center text-sm mt-5 text-gray-600">
               Already have an account?{" "}
               <a href="/login" className="text-blue-600 font-medium hover:underline">

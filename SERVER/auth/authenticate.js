@@ -83,7 +83,6 @@ router.get('/dashboard', authMiddleware, (req, res) => {
 
 
 
-//logout logic
 router.post('/logout', (req, res) => {
     req.session.destroy((err)=> {
         if (err) {

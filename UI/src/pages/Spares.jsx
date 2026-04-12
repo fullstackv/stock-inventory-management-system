@@ -26,6 +26,7 @@ const Spares = () => {
         quantity: "",
         unitPrice: "",
       })
+      getSpares()
     } catch (error) {
       toast.error(error.response?.data?.error)
     }
@@ -47,7 +48,6 @@ const Spares = () => {
   return (
     <div className="space-y-6">
 
-      {/* Form */}
       <form onSubmit={handleAdd} className="bg-white p-6 rounded-2xl shadow">
         <h2 className="text-xl font-bold mb-4">Add Spare</h2>
 
@@ -63,7 +63,6 @@ const Spares = () => {
         </button>
       </form>
 
-      {/* Table */}
       <div className="bg-white p-6 rounded-2xl shadow">
         <h2 className="text-xl font-bold mb-4">All Spares</h2>
 

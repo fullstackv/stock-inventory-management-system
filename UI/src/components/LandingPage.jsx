@@ -30,7 +30,6 @@ const [scrolled, setScrolled] = useState(false);
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white">
 
-      {/* NAVBAR */}
       <nav
         className={`fixed top-0 w-full z-50 transition-all ${
           scrolled
@@ -69,20 +68,16 @@ const [scrolled, setScrolled] = useState(false);
         </div>
       </nav>
 
-      {/* HERO */}
       <section className="relative px-6 py-28 text-center overflow-hidden">
 
-        {/* subtle background glow */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,200,255,0.12),transparent_60%)]"></div>
 
         <div className="relative z-10 max-w-4xl mx-auto">
 
-            {/* Badge */}
             <div className="inline-block px-4 py-1 mb-6 text-xs rounded-full bg-white/10 border border-white/10">
             🚀 Modern Inventory Solution for Businesses
             </div>
 
-            {/* Main Headline (VERY IMPORTANT - NO ANIMATION) */}
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
             Manage Your Inventory <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-500">
@@ -90,13 +85,11 @@ const [scrolled, setScrolled] = useState(false);
             </span>
             </h1>
 
-            {/* Sub text */}
             <p className="mt-6 text-gray-300 text-lg max-w-2xl mx-auto">
             SIMS helps you track stock in real-time, manage spare parts efficiently,
             and generate reliable reports to improve business decisions.
             </p>
 
-            {/* CTA */}
             <div className="mt-8 flex justify-center gap-4">
             <Link
                 to="/register"
@@ -113,7 +106,6 @@ const [scrolled, setScrolled] = useState(false);
             </a>
             </div>
 
-            {/* Trust row */}
             <div className="mt-10 flex flex-wrap justify-center gap-6 text-gray-400 text-sm">
             <span>✔ Real-time tracking</span>
             <span>✔ Secure system</span>
@@ -124,7 +116,6 @@ const [scrolled, setScrolled] = useState(false);
         </div>
         </section>
 
-      {/* FEATURES */}
       <section id="features" className="px-8 py-20">
         <h2 className="text-center text-3xl font-bold mb-12">Features</h2>
 
@@ -157,10 +148,8 @@ const [scrolled, setScrolled] = useState(false);
             Powerful Inventory Dashboard
         </h2>
 
-        {/* SPLIT SECTION */}
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
 
-            {/* LEFT - DASHBOARD PREVIEW (FLOATING CARD) */}
             <div className="relative">
 
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl backdrop-blur-md">
@@ -169,7 +158,6 @@ const [scrolled, setScrolled] = useState(false);
                 Live System Preview
                 </h3>
 
-                {/* mini cards */}
                 <div className="grid grid-cols-2 gap-4">
 
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10">
@@ -194,7 +182,6 @@ const [scrolled, setScrolled] = useState(false);
 
                 </div>
 
-                {/* fake table */}
                 <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
 
                 <p className="text-sm font-semibold mb-2 text-gray-300">
@@ -218,12 +205,10 @@ const [scrolled, setScrolled] = useState(false);
 
             </div>
 
-            {/* glow effect */}
             <div className="absolute -inset-4 bg-cyan-500/10 blur-2xl rounded-3xl -z-10"></div>
 
             </div>
 
-            {/* RIGHT - DESCRIPTION */}
             <div>
 
             <h3 className="text-2xl font-bold mb-4">
@@ -312,7 +297,6 @@ const [scrolled, setScrolled] = useState(false);
 
 
 
-      {/* ABOUT */}
       <section id="about" className="py-24 px-8 bg-white/5 border-y border-white/10">
 
         <div className="max-w-4xl mx-auto text-center">
@@ -348,14 +332,12 @@ const [scrolled, setScrolled] = useState(false);
         </div>
       </section>
 
-      {/* CONTACT */}
       <section id="contact" className="py-24 px-8">
 
         <h2 className="text-center text-3xl font-bold mb-12">Contact Us</h2>
 
         <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
 
-          {/* INFO */}
           <div className="space-y-6">
 
             <div className="flex items-center gap-3">
@@ -375,7 +357,6 @@ const [scrolled, setScrolled] = useState(false);
 
           </div>
 
-          {/* FORM */}
           <div className="space-y-4">
             <input
               placeholder="Your Name"
@@ -398,12 +379,10 @@ const [scrolled, setScrolled] = useState(false);
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer className="bg-black/40 border-t border-white/10 py-12 px-8">
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
 
-          {/* COLUMN 1 */}
           <div>
             <h3 className="font-bold text-lg mb-3 text-orange-600">SIMS</h3>
             <p className="text-gray-400 text-sm">
@@ -411,7 +390,6 @@ const [scrolled, setScrolled] = useState(false);
             </p>
           </div>
 
-          {/* COLUMN 2 */}
           <div>
             <h3 className="font-bold mb-3">Quick Links</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
@@ -421,7 +399,6 @@ const [scrolled, setScrolled] = useState(false);
             </ul>
           </div>
 
-          {/* COLUMN 3 */}
           <div>
             <h3 className="font-bold mb-3">System</h3>
             <ul className="space-y-2 text-gray-400 text-sm">

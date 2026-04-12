@@ -27,12 +27,10 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
 
-      {/* LEFT SIDE - INFO PANEL */}
       <div className="md:w-1/2 bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white flex items-center justify-center p-10">
 
         <div className="max-w-md">
 
-          {/* Logo */}
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-white/20 p-3 rounded-xl">
               <Box className="w-8 h-8 text-white" />
@@ -40,7 +38,6 @@ const Login = () => {
             <h1 className="text-3xl font-bold tracking-widest">SIMS</h1>
           </div>
 
-          {/* Title */}
           <h2 className="text-2xl font-bold mb-4">
             Stock Inventory Management System
           </h2>
@@ -50,7 +47,6 @@ const Login = () => {
             powerful system built for speed, accuracy, and efficiency.
           </p>
 
-          {/* Features */}
           <div className="space-y-3">
 
             <div className="flex items-center gap-2">
@@ -77,13 +73,10 @@ const Login = () => {
         </div>
       </div>
 
-      {/* RIGHT SIDE - LOGIN FORM */}
       <div className="md:w-1/2 flex items-center justify-center bg-gradient-to-br from-blue-200 via-indigo-200 to-purple-200 p-6">
 
-        {/* Card */}
         <div className="w-[380px] bg-white rounded-2xl shadow-2xl overflow-hidden">
 
-          {/* Header */}
           <div className="bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 p-6 flex flex-col items-center">
             <div className="bg-cyan-800 p-3 rounded-xl mb-3">
               <Box className="text-white w-10 h-10" />
@@ -93,7 +86,6 @@ const Login = () => {
             </h1>
           </div>
 
-          {/* Body */}
           <div className="p-6">
 
             <h2 className="text-center text-xl font-semibold text-gray-800">
@@ -106,7 +98,6 @@ const Login = () => {
 
             <form onSubmit={handleLogin}>
 
-              {/* Username */}
               <div className="relative mb-4">
                 <Mail className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
                 <input
@@ -118,7 +109,6 @@ const Login = () => {
                 />
               </div>
 
-              {/* Password */}
               <div className="relative mb-4">
                 <Lock className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
                 <input
@@ -137,7 +127,6 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Options */}
               <div className="flex items-center justify-between text-sm mb-5">
                 <label className="flex items-center gap-2 text-gray-600">
                   <input type="checkbox" className="accent-blue-600" />
@@ -149,13 +138,11 @@ const Login = () => {
                 </a>
               </div>
 
-              {/* Button */}
               <button className="w-full bg-gradient-to-r from-cyan-600 to-cyan-800 text-white py-2 rounded-lg font-semibold hover:opacity-90 transition">
                 Login
               </button>
             </form>
 
-            {/* Footer */}
             <p className="text-center text-sm mt-5 text-gray-600">
               Don’t have an account?{" "}
               <Link to="/register" className="text-blue-600 font-medium hover:underline">

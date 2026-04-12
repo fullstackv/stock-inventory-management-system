@@ -4,7 +4,10 @@ const cors = require('cors')
 const app = express();
 const port = 8000;
 const router = require('./auth/authenticate')
-const apps = require('./spares')
+const apps = require('./spares');
+const stockInRouter = require("./stock_in");
+const stockOutRouter = require("./stock_out");
+const reportsRouter = require("./reports");
 
 app.use(express.json());
 app.use(cors({
@@ -21,8 +24,12 @@ app.use(
     },
   }),
 );
+
 app.use(router)
 app.use(apps)
+app.use(stockInRouter)
+app.use(stockOutRouter)
+app.use(reportsRouter)
 
 app.listen(port, ()=> {
     console.log(`App is running on port: ${port}`)
