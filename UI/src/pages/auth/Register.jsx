@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { User, Mail, Phone, Lock, Eye, EyeOff, Box, CheckCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import axios from 'axios'
 
@@ -163,9 +163,9 @@ const Register = () => {
 
             <p className="text-center text-sm mt-5 text-gray-600">
               Already have an account?{" "}
-              <a href="/login" className="text-blue-600 font-medium hover:underline">
+              <Link href="/login" className="text-blue-600 font-medium hover:underline">
                 Login
-              </a>
+              </Link>
             </p>
 
           </div>
