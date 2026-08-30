@@ -1,115 +1,70 @@
-const express = require("express");
-const stockOutRouter = express.Router();
-const db = require("./conn");
-const authMiddleware = require("./auth/middleWare");
+const router = require("express").Router();
+const Spare = require("./models/Spare");
+const StockOut = require("./models/StockOut");
+const { requireAuth, requireRole, blockIfMustChangePassword } = require("./auth/middleWare");
+const { logActivity } = require("./utils/activityLogger");
 
-// ADD STOCK OUT
-stockOutRouter.post("/stockout", authMiddleware, async (req, res) => {
-    try {
-        const { spare_id, stockOutQuantity, stockOutDate } = req.body;
-        if (!spare_id || !stockOutQuantity || !stockOutDate) {
-            return res.status(400).send({error: "All fields are required!"})
-        }
+router.use(requireAuth, requireRole("storekeeper"), blockIfMustChangePassword);
 
-        // CHECK AVAILABLE STOCK
-        const [rows] = await db.execute(
-            "SELECT quantity, unitPrice FROM spares WHERE id = ?",
-            [spare_id]
-        );
+// GET all stock-out records for this storekeeper
+router.get("/stockout", async (req, res) => {
+  try {
+    const records = await StockOut.find({ storeKeeper: req.session.user.id })
+      .populate("spare", "name sku")
+      .sort({ date: -1 });
 
-        const spare = rows[0];
+    const shaped = records.map((r) => ({
+      name: r.spare?.name || "(deleted spare)",
+      stockOutQuantity: r.quantity,
+      stockOutTotalPrice: r.totalPrice,
+      stockOutDate: r.date,
+    }));
 
-        if (!spare) {
-            return res.status(404).json({ error: "Spare not found" });
-        }
-
-        if (spare.quantity < stockOutQuantity) {
-            return res.status(400).json({ error: "Insufficient stock" });
-        }
-
-        const totalPrice = stockOutQuantity * spare.unitPrice;
-
-        // INSERT STOCK OUT
-        const insertStockOut = `
-            INSERT INTO stock_out
-            (spare_id, stockOutQuantity, stockOutUnitPrice, stockOutTotalPrice, stockOutDate)
-            VALUES (?, ?, ?, ?, ?)
-        `;
-
-        await db.execute(insertStockOut, [
-            spare_id,
-            stockOutQuantity,
-            spare.unitPrice,
-            totalPrice,
-            stockOutDate
-        ]);
-
-        // UPDATE SPARE
-        const updateSpare = `
-            UPDATE spares
-            SET quantity = quantity - ?,
-                totalPrice = quantity * unitPrice
-            WHERE id = ?
-        `;
-
-        await db.execute(updateSpare, [
-            stockOutQuantity,
-            spare_id
-        ]);
-
-        res.json({ message: "Stock removed successfully" });
-
-    } catch (error) {
-        res.status(500).json({error: "Error while removing spare from stock!", error});
-    }
+    res.json(shaped);
+  } catch (error) {
+    console.error("Fetch stock-out error:", error);
+    res.status(500).json({ error: "Failed to fetch stock out data" });
+  }
 });
 
-// GET ALL STOCK OUT
-stockOutRouter.get("/stockout", authMiddleware, async (req, res) => {
-    try {
-        const [rows] = await db.execute("SELECT `s`.`name`, `o`.`stockOutQuantity`, `o`.`stockOutTotalPrice`, `o`.`stockOutDate` FROM stock_out o JOIN spares s ON `o`.`spare_id` = `s`.`id`");
-        res.json(rows);
-    } catch (error) {
-        res.status(500).json({error: "Filed to fetch stock out data", error});
+// REMOVE STOCK (stock out)
+router.post("/stockout", async (req, res) => {
+  const { spare_id, stockOutQuantity, stockOutDate } = req.body;
+  try {
+    if (!spare_id || !stockOutQuantity || !stockOutDate) {
+      return res.status(400).json({ error: "Spare, quantity and date are required!" });
     }
+    if (stockOutQuantity <= 0) {
+      return res.status(400).json({ error: "Quantity must be greater than 0" });
+    }
+
+    const spare = await Spare.findOne({ _id: spare_id, storeKeeper: req.session.user.id });
+    if (!spare) return res.status(404).json({ error: "Spare not found" });
+    if (spare.quantity < stockOutQuantity) {
+      return res.status(400).json({ error: "Not enough stock available" });
+    }
+
+    const totalPrice = stockOutQuantity * spare.unitPrice;
+
+    await StockOut.create({
+      spare: spare_id,
+      quantity: stockOutQuantity,
+      totalPrice,
+      date: stockOutDate,
+      storeKeeper: req.session.user.id,
+    });
+
+    spare.quantity -= Number(stockOutQuantity);
+    spare.totalPrice = spare.quantity * spare.unitPrice;
+    await spare.save();
+
+    await logActivity(req.session.user.email, "STOCK_OUT", `Removed ${stockOutQuantity} units of "${spare.name}"`, req.session.user.id);
+
+    res.json({ message: "Stock removed successfully" });
+  } catch (error) {
+    console.error("Remove stock-out error:", error);
+    res.status(500).json({ error: "Error while removing spare from stock!" });
+  }
 });
 
-// UPDATE STOCK OUT
-stockOutRouter.put("/stockout/:id", authMiddleware, async (req, res) => {
-    try {
-        const { stockOutQuantity, stockOutUnitPrice, stockOutDate } = req.body;
-
-        const totalPrice = stockOutQuantity * stockOutUnitPrice;
-
-        const sql = `
-            UPDATE stock_out
-            SET stockOutQuantity=?, stockOutUnitPrice=?, stockOutTotalPrice=?, stockOutDate=?
-            WHERE id=?
-        `;
-
-        await db.execute(sql, [
-            stockOutQuantity,
-            stockOutUnitPrice,
-            totalPrice,
-            stockOutDate,
-            req.params.id
-        ]);
-
-        res.json({ message: "Stock out updated" });
-
-    } catch (error) {
-        res.status(500).json(error);
-    }
-});
-
-// DELETE STOCK OUT
-stockOutRouter.delete("/stockout/:id", authMiddleware, async (req, res) => {
-    try {
-        await db.execute("DELETE FROM stock_out WHERE id = ?", [req.params.id]);
-        res.json({ message: "Stock out deleted" });
-    } catch (error) {
-        res.status(500).json(error);
-    }
-});
-
-module.exports = stockOutRouter;
+module.exports = router;

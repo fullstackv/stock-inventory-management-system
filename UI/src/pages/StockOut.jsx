@@ -1,29 +1,30 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import api from "../api/axios";
 import { toast } from "sonner";
-import { PlusCircle, Package } from "lucide-react";
+import { PlusCircle, ArrowUpFromLine } from "lucide-react";
+import { formatFRW } from "../utils/currency";
 
 const StockOut = () => {
   const [stockOut, setStockOut] = useState([]);
   const [spares, setSpares] = useState([]);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     spare_id: "",
     stockOutQuantity: "",
     stockOutDate: ""
   });
-
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // FETCH DATA
   const fetchData = async () => {
     try {
-      const stockRes = await axios.get("http://localhost:8000/stockout", { withCredentials: true });
-      const spareRes = await axios.get("http://localhost:8000/spares", { withCredentials: true });
-
+      const stockRes = await api.get("/stockout");
+      const spareRes = await api.get("/spares/all");
       setStockOut(stockRes.data);
       setSpares(spareRes.data);
     } catch (error) {
-      toast.error(error.response?.data?.error);
+      console.error("Fetch stock-out error:", error);
+      toast.error(error.response?.data?.error || "Failed to load stock-out records");
     }
   };
 
@@ -31,149 +32,138 @@ const StockOut = () => {
     fetchData();
   }, []);
 
-  // HANDLE INPUT
   const handleChange = (e) => {
     const updated = { ...form, [e.target.name]: e.target.value };
     setForm(updated);
 
     if (updated.spare_id && updated.stockOutQuantity) {
-      const spare = spares.find((s) => s.id == updated.spare_id);
+      const spare = spares.find((s) => s._id === updated.spare_id);
       if (spare) {
         setTotalPrice(spare.unitPrice * updated.stockOutQuantity);
       }
     }
   };
 
-  // SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     try {
-      const res = await axios.post("http://localhost:8000/stockout", form, { withCredentials: true });
+      const res = await api.post("/stockout", form);
       toast.success(res.data.message);
+      setForm({ spare_id: "", stockOutQuantity: "", stockOutDate: "" });
+      setTotalPrice(0);
       fetchData();
     } catch (error) {
-      toast.error(error.response?.data?.error);
+      toast.error(error.response?.data?.error || "Failed to remove stock");
+    } finally {
+      setSaving(false);
     }
   };
 
-  // FORMAT DATE
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric"
-    });
-  };
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
+  const selectedSpare = spares.find((s) => s._id === form.spare_id);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="animate-fade-in space-y-6">
+      <div>
+        <h2 className="font-display text-xl font-bold text-ink-900 dark:text-white sm:text-2xl">Stock Out</h2>
+        <p className="text-sm text-ink-700/50 dark:text-white/40">Record inventory leaving the warehouse</p>
+      </div>
 
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Stock Out</h2>
-
-      <div className="grid lg:grid-cols-3 gap-6">
-
-        <div className="bg-white shadow-md rounded-xl p-6 h-fit">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700 flex items-center gap-2">
-            <Package size={18} />
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="card h-fit p-6">
+          <h3 className="mb-4 flex items-center gap-2 font-display font-semibold text-ink-900 dark:text-white">
+            <div className="rounded-lg bg-gradient-to-br from-rose-500 to-red-500 p-1.5 text-white">
+              <ArrowUpFromLine size={16} />
+            </div>
             Remove Stock
           </h3>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-
-            <select
-              name="spare_id"
-              onChange={handleChange}
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500"
-              required
-            >
-              <option value="">Select Spare</option>
-              {spares.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="number"
-              name="stockOutQuantity"
-              placeholder="Quantity"
-              onChange={handleChange}
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500"
-              required
-            />
-
-            <input
-              type="date"
-              name="stockOutDate"
-              onChange={handleChange}
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500"
-              required
-            />
-
-            <div className="bg-gray-100 p-3 rounded-lg flex justify-between text-sm">
-              <span className="text-gray-600">Total Price:</span>
-              <span className="font-bold text-red-600">
-                {totalPrice}
-              </span>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink-800 dark:text-white/70">Spare</label>
+              <select name="spare_id" value={form.spare_id} onChange={handleChange} className="select-field" required>
+                <option value="">Select Spare</option>
+                {spares.map((s) => (
+                  <option key={s._id} value={s._id}>{s.name} (in stock: {s.quantity})</option>
+                ))}
+              </select>
             </div>
 
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-red-600 text-white py-2 rounded-lg 
-                         hover:bg-red-700 hover:scale-[1.02] transition-all duration-300"
-            >
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink-800 dark:text-white/70">Quantity</label>
+              <input
+                type="number" min="1" max={selectedSpare?.quantity}
+                name="stockOutQuantity" value={form.stockOutQuantity}
+                placeholder="e.g. 10" onChange={handleChange} className="input-field" required
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink-800 dark:text-white/70">Date</label>
+              <input type="date" name="stockOutDate" value={form.stockOutDate} onChange={handleChange} className="input-field" required />
+            </div>
+
+            <div className="flex items-center justify-between rounded-xl bg-rose-50 p-3.5 text-sm ring-1 ring-rose-100 dark:bg-rose-500/10 dark:ring-rose-500/20">
+              <span className="text-ink-700/60 dark:text-white/50">Total Value Out:</span>
+              <span className="font-display font-bold text-rose-600 dark:text-rose-400">{formatFRW(totalPrice)}</span>
+            </div>
+
+            <button type="submit" className="btn-danger w-full" disabled={saving}>
               <PlusCircle size={18} />
-              Remove Stock
+              {saving ? "Removing..." : "Remove Stock"}
             </button>
           </form>
         </div>
 
-        <div className="col-span-2 bg-white shadow-md rounded-xl p-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">Stock Out Records</h3>
-
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-
-              <thead className="bg-gray-200 text-gray-700">
+        <div className="card overflow-hidden lg:col-span-2">
+          <div className="border-b border-black/5 p-6 pb-4 dark:border-white/10">
+            <h3 className="font-display font-semibold text-ink-900 dark:text-white">Stock Out Records</h3>
+            <p className="text-xs text-ink-700/50 dark:text-white/40">{stockOut.length} record(s)</p>
+          </div>
+          <div className="max-h-[520px] overflow-auto">
+            <table className="w-full">
+              <thead className="sticky top-0">
                 <tr>
-                  <th className="text-left px-4 py-2">#</th>
-                  <th className="text-left px-4 py-2">Spare</th>
-                  <th className="text-left px-4 py-2">Quantity</th>
-                  <th className="text-left px-4 py-2">Total Price</th>
-                  <th className="text-left px-4 py-2">Date</th>
+                  <th>#</th>
+                  <th>Spare</th>
+                  <th className="text-center">Quantity</th>
+                  <th className="text-right">Total Price</th>
+                  <th>Date</th>
                 </tr>
               </thead>
-
-              <tbody>
+              <tbody className="divide-y divide-black/5 dark:divide-white/10">
                 {stockOut.length > 0 ? (
                   stockOut.map((item, index) => (
-                    <tr key={index} className="border-t hover:bg-gray-50 transition">
-                      <td className="px-4 py-2">{index + 1}</td>
-                      <td className="px-4 py-2 font-medium">{item.name}</td>
-                      <td className="px-4 py-2">{item.stockOutQuantity}</td>
-                      <td className="px-4 py-2 text-red-600 font-semibold">
-                        {item.stockOutTotalPrice}
+                    <motion.tr
+                      key={index}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: Math.min(index * 0.02, 0.4) }}
+                      className="table-row-hover"
+                    >
+                      <td className="text-sm text-ink-700/50 dark:text-white/40">{index + 1}</td>
+                      <td className="font-medium text-ink-900 dark:text-white">{item.name}</td>
+                      <td className="text-center">
+                        <span className="badge badge-danger">-{item.stockOutQuantity}</span>
                       </td>
-                      <td className="px-4 py-2">
-                        {formatDate(item.stockOutDate)}
-                      </td>
-                    </tr>
+                      <td className="text-right font-semibold text-ink-900 dark:text-white">{formatFRW(item.stockOutTotalPrice)}</td>
+                      <td className="text-sm text-ink-700/70 dark:text-white/50">{formatDate(item.stockOutDate)}</td>
+                    </motion.tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="text-center py-4 text-gray-500">
+                    <td colSpan="5" className="py-10 text-center text-sm text-ink-700/40 dark:text-white/30">
                       No stock out records found
                     </td>
                   </tr>
                 )}
               </tbody>
-
             </table>
           </div>
         </div>
-
       </div>
     </div>
   );

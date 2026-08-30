@@ -1,46 +1,38 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
-const db = require("../conn");
-const authMiddleware = require("./middleWare");
+const User = require("../models/User");
+const { requireAuth } = require("./middleWare");
+const { logActivity } = require("../utils/activityLogger");
 
+// PUBLIC REGISTRATION - always creates an OWNER account. Storekeepers are
+// never self-registered; they're created by an owner via /storekeepers.
 router.post("/register", async (req, res) => {
   const { fullnames, email, phone, password } = req.body;
   try {
-    if (!fullnames || !email || !phone || !password) {
-      return res.status(400).send({ error: "All fields are required!" });
+    if (!fullnames || !email || !password) {
+      return res.status(400).send({ error: "Full names, email and password are required!" });
     }
-    if (!/^\d{10}$/.test(phone)) {
-      return res.status(400).send({ error: "Phone must be only numbers!" });
-    }
-    if (phone.length !== 10) {
-      return res
-        .status(400)
-        .send({ error: "Phone length is invalid, Exact 10 numbers required!" });
-    }
-    if (password.length < 6) {
-      return res.status(400).send({ error: "Password length is too short!" });
-    }
-    if (password.length > 12) {
-      return res.status(400).send({ error: "Password length is too long!" });
-    }
-    const [userExist] = await db.query("SELECT * FROM users WHERE email = ?", [
-      email,
-    ]);
-    if (userExist.length > 0) {
-      return res
-        .status(409)
-        .send({ error: "Email already exist, try different one!" });
+
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing) {
+      return res.status(409).send({ error: "An account with this email already exists." });
     }
 
     const hsh = await bcrypt.hash(password, 10);
-    const sql =
-      "INSERT INTO users (fullnames, email, phone, password) VALUES(?,?,?,?)";
-    await db.query(sql, [fullnames, email, phone, hsh]);
-    res
-      .status(201)
-      .send({ success: true, message: "New user registered successfully!" });
+    const user = await User.create({
+      fullnames,
+      email: email.toLowerCase(),
+      phone,
+      password: hsh,
+      role: "owner",
+    });
+
+    await logActivity(user.email, "REGISTER", `New owner account created for ${fullnames}`);
+
+    res.status(201).send({ success: true, message: "Owner account created successfully!" });
   } catch (error) {
-    res.status(500).send({ error: "Internal Server Error",error });
+    console.error("Register error:", error);
+    res.status(500).send({ error: "Internal Server Error" });
   }
 });
 
@@ -48,48 +40,96 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     if (!email || !password) {
-      return res.status(400).send({ error: "All fields are required!" });
-    }
-    const [users] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
-    if (users.length === 0) {
-      return res.status(404).send({ error: "Email not found!" });
-    }
-    console.log('Email ckecked...')
-    const user = users[0]
-    const isCorrect = await bcrypt.compare(password, user.password)
-    if (!isCorrect) {
-      return res.status(401).send({ error: "Password not match!" });
+      return res.status(400).send({ error: "Email and password are required!" });
     }
 
-    // delete user.password
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(401).send({ error: "Invalid email or password" });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).send({ error: "Your account has been deactivated. Please contact the owner." });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).send({ error: "Invalid email or password" });
+    }
+
     req.session.user = {
-        names: user.fullnames,
-        email: user.email
-    }
+      id: user._id.toString(),
+      names: user.fullnames,
+      email: user.email,
+      role: user.role,
+      mustChangePassword: user.mustChangePassword,
+    };
 
-    res.status(200).send({message: "User logged in successfully", user: req.session.user})
+    await logActivity(
+      user.email,
+      "LOGIN",
+      `${user.fullnames} logged in`,
+      user.role === "storekeeper" ? user._id : null
+    );
 
+    res.status(200).send({ message: "User logged in successfully", user: req.session.user });
   } catch (error) {
-    res.status(500).send({ error: "Internal Server Error",error });
+    console.error("Login error:", error);
+    res.status(500).send({ error: "Internal Server Error" });
   }
 });
 
-
-router.get('/dashboard', authMiddleware, (req, res) => {
-    if (req.session.user) {
-        res.send({user: req.session.user}) 
+router.post("/logout", (req, res) => {
+  req.session.destroy((error) => {
+    if (error) {
+      console.error("Logout error:", error);
+      return res.status(500).send({ error: "Failed to logout" });
     }
-})
+    res.clearCookie("connect.sid");
+    res.status(200).send({ message: "Logout success!" });
+  });
+});
 
+router.get("/dashboard", requireAuth, (req, res) => {
+  res.status(200).send({ user: req.session.user });
+});
 
+// Change password - used both for the forced first-time change (temp
+// password from an owner) and any later voluntary password change.
+router.put("/change-password", requireAuth, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  try {
+    if (!currentPassword || !newPassword) {
+      return res.status(400).send({ error: "Current and new password are required!" });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).send({ error: "New password must be at least 6 characters." });
+    }
 
-router.post('/logout', (req, res) => {
-    req.session.destroy((err)=> {
-        if (err) {
-            return res.send({error: "Failed to log out!"})
-        }
-        res.status(200).send({message: "Logout success!"})
-    })
-})
+    const user = await User.findById(req.session.user.id);
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match) {
+      return res.status(401).send({ error: "Current password is incorrect." });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.mustChangePassword = false;
+    await user.save();
+
+    req.session.user.mustChangePassword = false;
+
+    await logActivity(
+      user.email,
+      "CHANGE_PASSWORD",
+      `${user.fullnames} changed their password`,
+      user.role === "storekeeper" ? user._id : null
+    );
+
+    res.status(200).send({ message: "Password changed successfully!" });
+  } catch (error) {
+    console.error("Change password error:", error);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+});
 
 module.exports = router;

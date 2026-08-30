@@ -1,50 +1,63 @@
+const router = require("express").Router();
+const Spare = require("./models/Spare");
+const StockIn = require("./models/StockIn");
+const { requireAuth, requireRole, blockIfMustChangePassword } = require("./auth/middleWare");
+const { logActivity } = require("./utils/activityLogger");
 
-const express = require("express");
-const stockInRouter = express.Router();
-const db = require("./conn");
-const authMiddleware = require("./auth/middleWare");
+router.use(requireAuth, requireRole("storekeeper"), blockIfMustChangePassword);
+
+// GET all stock-in records for this storekeeper
+router.get("/stockin", async (req, res) => {
+  try {
+    const records = await StockIn.find({ storeKeeper: req.session.user.id })
+      .populate("spare", "name sku")
+      .sort({ date: -1 });
+
+    const shaped = records.map((r) => ({
+      name: r.spare?.name || "(deleted spare)",
+      stockInQuantity: r.quantity,
+      stockInDate: r.date,
+    }));
+
+    res.json(shaped);
+  } catch (error) {
+    console.error("Fetch stock-in error:", error);
+    res.status(500).json({ error: "Failed to fetch stock in data" });
+  }
+});
 
 // ADD STOCK IN
-stockInRouter.post("/stockin", authMiddleware, async (req, res) => {
+router.post("/stockin", async (req, res) => {
+  const { spare_id, stockInQuantity, stockInDate } = req.body;
   try {
-    const { spare_id, stockInQuantity, stockInDate } = req.body;
     if (!spare_id || !stockInQuantity || !stockInDate) {
-            return res.status(400).send({error: "All fields are required!"})
-        }
+      return res.status(400).json({ error: "Spare, quantity and date are required!" });
+    }
+    if (stockInQuantity <= 0) {
+      return res.status(400).json({ error: "Quantity must be greater than 0" });
+    }
 
-    // INSERT STOCK IN
-    const insertStockIn = `
-            INSERT INTO stock_in (spare_id, stockInQuantity, stockInDate)
-            VALUES (?, ?, ?)
-        `;
+    const spare = await Spare.findOne({ _id: spare_id, storeKeeper: req.session.user.id });
+    if (!spare) return res.status(404).json({ error: "Spare not found" });
 
-    await db.execute(insertStockIn, [spare_id, stockInQuantity, stockInDate]);
+    await StockIn.create({
+      spare: spare_id,
+      quantity: stockInQuantity,
+      date: stockInDate,
+      storeKeeper: req.session.user.id,
+    });
 
-    // UPDATE SPARE
-    const updateSpare = `
-            UPDATE spares
-            SET quantity = quantity + ?,
-                totalPrice = quantity * unitPrice
-            WHERE id = ?
-        `;
+    spare.quantity += Number(stockInQuantity);
+    spare.totalPrice = spare.quantity * spare.unitPrice;
+    await spare.save();
 
-    await db.execute(updateSpare, [stockInQuantity, spare_id]);
+    await logActivity(req.session.user.email, "STOCK_IN", `Added ${stockInQuantity} units to "${spare.name}"`, req.session.user.id);
 
     res.json({ message: "Stock added successfully" });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({error: "Error while adding new spare in stock!", error});
+    console.error("Add stock-in error:", error);
+    res.status(500).json({ error: "Error while adding new spare in stock!" });
   }
 });
 
-// GET ALL STOCK IN
-stockInRouter.get("/stockin", authMiddleware, async (req, res) => {
-  try {
-    const [rows] = await db.execute("SELECT p.name, s.stockInQuantity, s.stockInDate FROM stock_in s JOIN spares p ON s.spare_id = p.id");
-    res.json(rows);
-  } catch (error) {
-    res.status(500).json(error);
-  }
-});
-
-module.exports = stockInRouter;
+module.exports = router;

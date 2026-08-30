@@ -28,7 +28,7 @@ const [scrolled, setScrolled] = useState(false);
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-ink-900 via-[#26120c] to-brand-950 text-white">
 
       <nav
         className={`fixed top-0 w-full z-50 transition-all ${
@@ -60,7 +60,7 @@ const [scrolled, setScrolled] = useState(false);
             </Link>
             <Link
               to="/register"
-              className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 rounded-lg"
+              className="px-4 py-2 bg-gradient-to-r from-brand-600 to-brand-700 rounded-lg"
             >
               Get Started
             </Link>
@@ -93,7 +93,7 @@ const [scrolled, setScrolled] = useState(false);
             <div className="mt-8 flex justify-center gap-4">
             <Link
                 to="/register"
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-800 hover:opacity-90 transition"
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-red-600 hover:opacity-90 transition"
             >
                 Get Started
             </Link>
@@ -122,7 +122,7 @@ const [scrolled, setScrolled] = useState(false);
         <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
 
           {[
-            { icon: <Package className="text-cyan-400" />, title: "Inventory Tracking", desc: "Track all spare parts in real time." },
+            { icon: <Package className="text-orange-400" />, title: "Inventory Tracking", desc: "Track all spare parts in real time." },
             { icon: <TrendingUp className="text-green-400" />, title: "Stock Movement", desc: "Manage stock in and out easily." },
             { icon: <BarChart3 className="text-purple-400" />, title: "Reports", desc: "Generate smart analytics." },
             { icon: <Shield className="text-red-400" />, title: "Security", desc: "Role-based secure access." },
@@ -154,7 +154,7 @@ const [scrolled, setScrolled] = useState(false);
 
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl backdrop-blur-md">
 
-                <h3 className="text-lg font-semibold mb-4 text-cyan-400">
+                <h3 className="text-lg font-semibold mb-4 text-orange-400">
                 Live System Preview
                 </h3>
 
@@ -177,7 +177,7 @@ const [scrolled, setScrolled] = useState(false);
 
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10">
                     <p className="text-gray-400 text-xs">Accuracy</p>
-                    <p className="text-xl font-bold text-cyan-400">99%</p>
+                    <p className="text-xl font-bold text-orange-400">99%</p>
                 </div>
 
                 </div>
@@ -205,7 +205,7 @@ const [scrolled, setScrolled] = useState(false);
 
             </div>
 
-            <div className="absolute -inset-4 bg-cyan-500/10 blur-2xl rounded-3xl -z-10"></div>
+            <div className="absolute -inset-4 bg-brand-500/10 blur-2xl rounded-3xl -z-10"></div>
 
             </div>
 
@@ -224,28 +224,28 @@ const [scrolled, setScrolled] = useState(false);
             <div className="space-y-4 text-sm">
 
                 <div className="flex items-start gap-3">
-                <span className="text-cyan-400">✔</span>
+                <span className="text-orange-400">✔</span>
                 <p>Real-time stock tracking system</p>
                 </div>
 
                 <div className="flex items-start gap-3">
-                <span className="text-cyan-400">✔</span>
+                <span className="text-orange-400">✔</span>
                 <p>Easy stock in and stock out management</p>
                 </div>
 
                 <div className="flex items-start gap-3">
-                <span className="text-cyan-400">✔</span>
+                <span className="text-orange-400">✔</span>
                 <p>Advanced reporting and analytics</p>
                 </div>
 
                 <div className="flex items-start gap-3">
-                <span className="text-cyan-400">✔</span>
+                <span className="text-orange-400">✔</span>
                 <p>Secure role-based access system</p>
                 </div>
 
             </div>
 
-            <Link to={'/login'}><button className="mt-6 px-6 py-3 bg-gradient-to-r from-cyan-600 to-cyan-800 rounded-xl">
+            <Link to={'/login'}><button className="mt-6 px-6 py-3 bg-gradient-to-r from-brand-600 to-red-600 rounded-xl">
                 Try Dashboard
             </button></Link>
 
@@ -371,7 +371,7 @@ const [scrolled, setScrolled] = useState(false);
               rows="4"
               className="w-full p-3 rounded-lg bg-white/5 border focus:outline-none focus:ring-1 focus:ring-orange-400 border-orange-400/10"
             />
-            <button className="w-full py-3 bg-gradient-to-r from-cyan-500 to-cyan-800 rounded-lg">
+            <button className="w-full py-3 bg-gradient-to-r from-brand-500 to-red-600 rounded-lg">
               Send Message
             </button>
           </div>

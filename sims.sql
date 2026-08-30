@@ -175,3 +175,110 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- ============================================================
+-- ADVANCED FEATURES MIGRATION (Aug 2026)
+-- Adds: categories, suppliers, stock adjustments, activity log,
+-- user roles, and richer metadata on `spares` (SKU, reorder level,
+-- category/supplier links, storage location).
+-- Safe to run once against an existing `sims` database created by
+-- the dump above. Run the statements in order.
+-- ============================================================
+
+START TRANSACTION;
+
+-- --------------------------------------------------------
+-- Categories
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `categories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Seed categories from any existing free-text `spares.category` values
+INSERT IGNORE INTO `categories` (`name`)
+  SELECT DISTINCT `category` FROM `spares`
+  WHERE `category` IS NOT NULL AND `category` <> '';
+
+-- --------------------------------------------------------
+-- Suppliers
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `suppliers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `contact_person` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `phone` varchar(30) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+-- Extend `spares` with professional inventory metadata
+-- --------------------------------------------------------
+ALTER TABLE `spares`
+  ADD COLUMN IF NOT EXISTS `sku` varchar(50) DEFAULT NULL AFTER `name`,
+  ADD COLUMN IF NOT EXISTS `category_id` int(11) DEFAULT NULL AFTER `category`,
+  ADD COLUMN IF NOT EXISTS `supplier_id` int(11) DEFAULT NULL AFTER `category_id`,
+  ADD COLUMN IF NOT EXISTS `min_stock_level` int(11) NOT NULL DEFAULT 10 AFTER `quantity`,
+  ADD COLUMN IF NOT EXISTS `location` varchar(100) DEFAULT NULL AFTER `min_stock_level`,
+  ADD COLUMN IF NOT EXISTS `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() AFTER `created_at`;
+
+-- Backfill category_id from the legacy free-text category column
+UPDATE `spares` s
+  JOIN `categories` c ON s.`category` = c.`name`
+  SET s.`category_id` = c.`id`
+  WHERE s.`category_id` IS NULL;
+
+-- Backfill a readable SKU for existing rows that don't have one
+UPDATE `spares`
+  SET `sku` = CONCAT('SP-', LPAD(`id`, 5, '0'))
+  WHERE `sku` IS NULL OR `sku` = '';
+
+ALTER TABLE `spares` ADD UNIQUE KEY IF NOT EXISTS `sku_unique` (`sku`);
+
+ALTER TABLE `spares`
+  ADD CONSTRAINT `spares_category_fk` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `spares_supplier_fk` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`) ON DELETE SET NULL;
+
+-- --------------------------------------------------------
+-- Stock adjustments (damage, correction, stock-take, etc.)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `stock_adjustments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `spare_id` int(11) NOT NULL,
+  `adjustment_type` enum('increase','decrease') NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `reason` varchar(255) NOT NULL,
+  `adjusted_by` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `spare_id` (`spare_id`),
+  CONSTRAINT `stock_adjustments_ibfk_1` FOREIGN KEY (`spare_id`) REFERENCES `spares` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+-- Activity log (audit trail across the whole system)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `activity_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_email` varchar(100) DEFAULT NULL,
+  `action` varchar(100) NOT NULL,
+  `details` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+-- User roles
+-- --------------------------------------------------------
+ALTER TABLE `users`
+  ADD COLUMN IF NOT EXISTS `role` enum('admin','manager','staff') NOT NULL DEFAULT 'admin' AFTER `password`,
+  ADD COLUMN IF NOT EXISTS `created_at` timestamp NOT NULL DEFAULT current_timestamp() AFTER `role`;
+
+COMMIT;
