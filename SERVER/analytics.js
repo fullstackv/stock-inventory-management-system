@@ -6,9 +6,10 @@ const Supplier = require("./models/Supplier");
 const StockIn = require("./models/StockIn");
 const StockOut = require("./models/StockOut");
 const ActivityLog = require("./models/ActivityLog");
-const { requireAuth, requireRole, blockIfMustChangePassword } = require("./auth/middleWare");
 
-router.use(requireAuth, requireRole("storekeeper"), blockIfMustChangePassword);
+const { requireAuth, requireRole } = require("./auth/middleWare");
+
+router.use(requireAuth, requireRole("storekeeper"));
 
 router.get("/analytics", async (req, res) => {
   try {

@@ -22,8 +22,15 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        {/* Either role can be here - it's the page that gets a storekeeper
+            unblocked on their very first login. */}
         <Route element={<ProtectedRoute />}>
           <Route path="/change-password" element={<ChangePassword />} />
+        </Route>
+
+        {/* Storekeeper-only: inventory pages. An owner landing here gets
+            bounced to /storekeepers instead of a page full of 403s. */}
+        <Route element={<ProtectedRoute allowedRoles={["storekeeper"]} />}>
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/spares" element={<Spares />} />
@@ -33,6 +40,12 @@ function App() {
             <Route path="/categories" element={<Categories />} />
             <Route path="/suppliers" element={<Suppliers />} />
             <Route path="/reports" element={<Reports />} />
+          </Route>
+        </Route>
+
+        {/* Owner-only: managing storekeeper accounts. */}
+        <Route element={<ProtectedRoute allowedRoles={["owner"]} />}>
+          <Route element={<Layout />}>
             <Route path="/storekeepers" element={<StoreKeepers />} />
           </Route>
         </Route>

@@ -1,10 +1,11 @@
 const router = require("express").Router();
 const Spare = require("./models/Spare");
 const StockAdjustment = require("./models/StockAdjustment");
-const { requireAuth, requireRole, blockIfMustChangePassword } = require("./auth/middleWare");
 const { logActivity } = require("./utils/activityLogger");
 
-router.use(requireAuth, requireRole("storekeeper"), blockIfMustChangePassword);
+const { requireAuth, requireRole } = require("./auth/middleWare");
+
+router.use(requireAuth, requireRole("storekeeper"));
 
 // GET ADJUSTMENT HISTORY
 router.get("/adjustments", async (req, res) => {

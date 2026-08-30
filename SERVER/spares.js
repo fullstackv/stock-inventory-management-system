@@ -1,9 +1,11 @@
 const router = require("express").Router();
 const Spare = require("./models/Spare");
-const { requireAuth, requireRole, blockIfMustChangePassword } = require("./auth/middleWare");
 const { logActivity } = require("./utils/activityLogger");
 
-router.use(requireAuth, requireRole("storekeeper"), blockIfMustChangePassword);
+
+const { requireAuth, requireRole } = require("./auth/middleWare");
+
+router.use(requireAuth, requireRole("storekeeper"));
 
 // GET /spares - advanced list: search, category/supplier filters,
 // low-stock-only filter, and pagination. Used by the Spares management page.

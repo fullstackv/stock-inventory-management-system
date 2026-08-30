@@ -4,9 +4,10 @@ const Spare = require("./models/Spare");
 const StockIn = require("./models/StockIn");
 const StockOut = require("./models/StockOut");
 const StockAdjustment = require("./models/StockAdjustment");
-const { requireAuth, requireRole, blockIfMustChangePassword } = require("./auth/middleWare");
 
-router.use(requireAuth, requireRole("storekeeper"), blockIfMustChangePassword);
+const { requireAuth, requireRole } = require("./auth/middleWare");
+
+router.use(requireAuth, requireRole("storekeeper"));
 
 // GET /reports - supports several report "type" values:
 //   stockin | stockout | both   -> movement reports

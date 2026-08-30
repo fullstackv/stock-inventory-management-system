@@ -1,10 +1,11 @@
 const router = require("express").Router();
 const Spare = require("./models/Spare");
 const StockIn = require("./models/StockIn");
-const { requireAuth, requireRole, blockIfMustChangePassword } = require("./auth/middleWare");
 const { logActivity } = require("./utils/activityLogger");
 
-router.use(requireAuth, requireRole("storekeeper"), blockIfMustChangePassword);
+const { requireAuth, requireRole } = require("./auth/middleWare");
+
+router.use(requireAuth, requireRole("storekeeper"));
 
 // GET all stock-in records for this storekeeper
 router.get("/stockin", async (req, res) => {

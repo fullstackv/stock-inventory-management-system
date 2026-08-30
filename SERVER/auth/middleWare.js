@@ -42,16 +42,27 @@ const requireAuth = async (req, res, next) => {
 };
 
 // Restricts a route to specific roles (e.g. only 'owner').
+// Restricts a route to specific roles (e.g. only 'owner').
 const requireRole = (...allowedRoles) => (req, res, next) => {
   const role = req.session.user?.role;
+  // TEMP DEBUG - remove once the role mismatch is found.
+  console.log("[requireRole]", {
+    path: req.path,
+    sessionID: req.sessionID,
+    sessionUser: req.session.user,
+    allowedRoles,
+  });
   if (!allowedRoles.includes(role)) {
     return res.status(403).send({ error: "You don't have permission to perform this action." });
   }
   next();
 };
 
-// Storekeepers who haven't changed their temporary password yet are
-// blocked from every inventory route except changing their password.
+
+// No longer wired into any route by default - storekeepers now get full
+// access immediately after login with their temporary password.
+// Kept here in case a stricter deployment wants to re-enable a forced
+// change-on-first-login gate later.
 const blockIfMustChangePassword = (req, res, next) => {
   if (req.session.user?.mustChangePassword) {
     return res.status(428).send({ error: "You must change your temporary password before continuing." });

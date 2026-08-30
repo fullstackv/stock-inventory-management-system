@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import api from "../api/axios";
 
-const ProtectedRoute = () => {
+// allowedRoles: optional array (e.g. ["storekeeper"] or ["owner"]).
+// Omit it to just require "logged in, any role" (used for /change-password).
+const ProtectedRoute = ({ allowedRoles }) => {
   // "checking" | "authenticated" | "unauthenticated"
   const [authStatus, setAuthStatus] = useState("checking");
   const [user, setUser] = useState(null);
@@ -38,7 +40,20 @@ const ProtectedRoute = () => {
     );
   }
 
-  return authStatus === "authenticated" ? <Outlet context={{ user }} /> : <Navigate to="/login" replace />;
+  if (authStatus !== "authenticated") {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Logged in, but this page isn't meant for their role (e.g. an owner
+  // opening a storekeeper-only inventory page, or vice versa). Send them
+  // to the page that actually belongs to them instead of letting every
+  // API call on the page fail with 403s.
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    const fallback = user?.role === "owner" ? "/storekeepers" : "/dashboard";
+    return <Navigate to={fallback} replace />;
+  }
+
+  return <Outlet context={{ user }} />;
 };
 
 export default ProtectedRoute;

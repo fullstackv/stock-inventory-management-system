@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { motion } from "framer-motion";
 import { KeyRound, Eye, EyeOff, Boxes, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -7,7 +7,6 @@ import api from "../api/axios";
 
 const ChangePassword = () => {
   const { user } = useOutletContext();
-  const navigate = useNavigate();
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,7 +29,13 @@ const ChangePassword = () => {
         newPassword: form.newPassword,
       });
       toast.success(res.data.message);
-      navigate("/dashboard");
+      // Force a full reload (not a client-side navigate) so the app
+      // re-fetches the session from scratch. mustChangePassword just
+      // flipped to false on the backend, and a client-side navigate can
+      // land on a route tree that's still holding the old cached session
+      // (mustChangePassword: true), which was bouncing people right back
+      // here in a loop.
+      window.location.href = user?.role === "owner" ? "/storekeepers" : "/dashboard";
     } catch (error) {
       toast.error(error.response?.data?.error || "Failed to change password");
     } finally {
@@ -115,6 +120,16 @@ const ChangePassword = () => {
 
             <button type="submit" className="btn-primary w-full" disabled={loading}>
               {loading ? "Updating..." : "Set New Password"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = user?.role === "owner" ? "/storekeepers" : "/dashboard";
+              }}
+              className="w-full text-center text-sm font-medium text-ink-700/50 hover:text-ink-700 dark:text-white/40 dark:hover:text-white"
+            >
+              Cancel
             </button>
           </form>
         </div>

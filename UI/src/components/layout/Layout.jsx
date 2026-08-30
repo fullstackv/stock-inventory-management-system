@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Outlet, Navigate, useLocation, useOutletContext } from "react-router-dom";
+import { Outlet, Navigate, Link, useLocation, useOutletContext } from "react-router-dom";
+import { ShieldAlert } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
@@ -19,9 +20,6 @@ const Layout = () => {
   // immediately instead of briefly mounting Header/Dashboard first -
   // which is what was firing /analytics and /spares requests that the
   // backend correctly rejected with 403 before the redirect could run.
-  if (user.role === "storekeeper" && user.mustChangePassword) {
-    return <Navigate to="/change-password" replace />;
-  }
   if (user.role === "owner" && !location.pathname.startsWith("/storekeepers")) {
     return <Navigate to={OWNER_HOME} replace />;
   }
@@ -41,6 +39,20 @@ const Layout = () => {
       <div className="flex min-h-screen flex-1 flex-col lg:min-w-0">
         <Header setMobileOpen={setMobileOpen} user={user} />
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          {user.mustChangePassword && (
+            <div className="mb-4 flex items-center gap-3 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/20">
+              <ShieldAlert size={18} className="shrink-0" />
+              <p className="flex-1">
+                You're still using the temporary password your owner gave you. We recommend setting your own.
+              </p>
+              <Link
+                to="/change-password"
+                className="shrink-0 font-semibold underline underline-offset-2 hover:no-underline"
+              >
+                Change it now
+              </Link>
+            </div>
+          )}
           <Outlet context={{ user }} />
         </main>
       </div>

@@ -2,10 +2,11 @@ const router = require("express").Router();
 const mongoose = require("mongoose");
 const Supplier = require("./models/Supplier");
 const Spare = require("./models/Spare");
-const { requireAuth, requireRole, blockIfMustChangePassword } = require("./auth/middleWare");
 const { logActivity } = require("./utils/activityLogger");
 
-router.use(requireAuth, requireRole("storekeeper"), blockIfMustChangePassword);
+const { requireAuth, requireRole } = require("./auth/middleWare");
+
+router.use(requireAuth, requireRole("storekeeper"));
 
 // GET ALL SUPPLIERS (with spare counts, scoped to this storekeeper)
 router.get("/suppliers", async (req, res) => {

@@ -2,13 +2,14 @@ const router = require("express").Router();
 const mongoose = require("mongoose");
 const Category = require("./models/Category");
 const Spare = require("./models/Spare");
-const { requireAuth, requireRole, blockIfMustChangePassword } = require("./auth/middleWare");
 const { logActivity } = require("./utils/activityLogger");
 
 // All inventory routes are storekeeper-only, scoped to that storekeeper's
 // own data. Owners never see or touch inventory - they only manage
 // storekeeper accounts via storekeepers.js.
-router.use(requireAuth, requireRole("storekeeper"), blockIfMustChangePassword);
+const { requireAuth, requireRole } = require("./auth/middleWare");
+
+router.use(requireAuth, requireRole("storekeeper"));
 
 // GET ALL CATEGORIES (with live spare counts, scoped to this storekeeper)
 router.get("/categories", async (req, res) => {

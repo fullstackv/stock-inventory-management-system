@@ -25,14 +25,11 @@ const Login = () => {
       const res = await api.post("/login", users);
       toast.success(res.data.message);
 
-      const { role, mustChangePassword } = res.data.user;
-      if (role === "owner") {
-        navigate("/storekeepers");
-      } else if (mustChangePassword) {
-        navigate("/change-password");
-      } else {
-        navigate("/dashboard");
-      }
+      const { role } = res.data.user;
+      // Storekeepers get straight into their account with the temp
+      // credentials the owner gave them - changing the password is
+      // available any time from the sidebar, not forced up front.
+      navigate(role === "owner" ? "/storekeepers" : "/dashboard");
     } catch (error) {
       toast.error(error.response?.data?.error || "Login failed, please try again.");
     } finally {

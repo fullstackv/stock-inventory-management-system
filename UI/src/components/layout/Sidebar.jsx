@@ -15,6 +15,7 @@ import {
   Boxes,
   X,
   Users,
+  KeyRound,
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../api/axios";
@@ -179,7 +180,21 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen, user }) =
           </button>
         </div>
 
-        <div className="border-t border-white/5 p-3">
+        <div className="border-t border-white/5 p-3 space-y-1">
+          <NavLink
+            to="/change-password"
+            onClick={() => setMobileOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-2 py-2 text-xs font-medium transition-colors
+               ${isActive ? "bg-white/10 text-white" : "text-white/50 hover:bg-white/5 hover:text-white"}
+               ${collapsed ? "justify-center" : ""}`
+            }
+            title="Change Password"
+          >
+            <KeyRound size={16} className="shrink-0" />
+            {!collapsed && "Change Password"}
+          </NavLink>
+
           <div className={`flex items-center gap-3 rounded-xl px-2 py-2 ${collapsed ? "justify-center" : ""}`}>
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-red-500 text-sm font-bold text-white">
               {(user?.names || "U").charAt(0).toUpperCase()}
