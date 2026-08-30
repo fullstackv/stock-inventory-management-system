@@ -5,7 +5,7 @@ const { logActivity } = require("./utils/activityLogger");
 
 const { requireAuth, requireRole } = require("./auth/middleWare");
 
-router.use(requireAuth, requireRole("storekeeper"));
+router.use("/spares", requireAuth, requireRole("storekeeper"));
 
 // GET /spares - advanced list: search, category/supplier filters,
 // low-stock-only filter, and pagination. Used by the Spares management page.

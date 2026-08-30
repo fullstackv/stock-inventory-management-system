@@ -1,11 +1,10 @@
-const crypto = require("crypto");
+// Every storekeeper is given the same default password when their account
+// is created (or reset) by the owner. They're forced to change it on first
+// login (see mustChangePassword on the User model / the change-password
+// flow), so this being shared/predictable is fine - it's a one-time,
+// single-use credential per account, not a long-lived password.
+const DEFAULT_STOREKEEPER_PASSWORD = "StoreKeeper@SIMS";
 
-// Generates a readable-ish random temporary password, e.g. "Kx7-mQ2p-9Rt4".
-// Good enough entropy for a temp credential the storekeeper is forced to
-// change on first login.
-const generateTempPassword = () => {
-  const chunk = () => crypto.randomBytes(3).toString("hex");
-  return `${chunk()}-${chunk()}-${chunk()}`;
-};
+const generateTempPassword = () => DEFAULT_STOREKEEPER_PASSWORD;
 
-module.exports = { generateTempPassword };
+module.exports = { generateTempPassword, DEFAULT_STOREKEEPER_PASSWORD };

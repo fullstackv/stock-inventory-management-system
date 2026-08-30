@@ -4,37 +4,10 @@ const User = require("../models/User");
 const { requireAuth } = require("./middleWare");
 const { logActivity } = require("../utils/activityLogger");
 
-// PUBLIC REGISTRATION - always creates an OWNER account. Storekeepers are
-// never self-registered; they're created by an owner via /storekeepers.
-router.post("/register", async (req, res) => {
-  const { fullnames, email, phone, password } = req.body;
-  try {
-    if (!fullnames || !email || !password) {
-      return res.status(400).send({ error: "Full names, email and password are required!" });
-    }
-
-    const existing = await User.findOne({ email: email.toLowerCase() });
-    if (existing) {
-      return res.status(409).send({ error: "An account with this email already exists." });
-    }
-
-    const hsh = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      fullnames,
-      email: email.toLowerCase(),
-      phone,
-      password: hsh,
-      role: "owner",
-    });
-
-    await logActivity(user.email, "REGISTER", `New owner account created for ${fullnames}`);
-
-    res.status(201).send({ success: true, message: "Owner account created successfully!" });
-  } catch (error) {
-    console.error("Register error:", error);
-    res.status(500).send({ error: "Internal Server Error" });
-  }
-});
+// Public owner registration has been removed on purpose: this system is
+// designed for exactly one owner account, and that account is created once,
+// up front, via `npm run seed` (see SERVER/seed.js). Storekeepers are never
+// self-registered either; they're created by the owner via /storekeepers.
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;

@@ -7,7 +7,7 @@ const StockAdjustment = require("./models/StockAdjustment");
 
 const { requireAuth, requireRole } = require("./auth/middleWare");
 
-router.use(requireAuth, requireRole("storekeeper"));
+router.use("/reports", requireAuth, requireRole("storekeeper"));
 
 // GET /reports - supports several report "type" values:
 //   stockin | stockout | both   -> movement reports

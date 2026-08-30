@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Lock, Eye, EyeOff, Boxes, CheckCircle2, Mail } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { toast } from "sonner";
 
@@ -130,13 +130,8 @@ const Login = () => {
               </button>
             </form>
 
-            <p className="mt-5 text-center text-sm text-ink-700/60 dark:text-white/40">
-              Business owner and don't have an account?{" "}
-              <Link to="/register" className="font-medium text-brand-600 hover:text-brand-700 hover:underline dark:text-brand-400">
-                Sign up
-              </Link>
-            </p>
-            <p className="mt-1.5 text-center text-xs text-ink-700/40 dark:text-white/30">
+            <p className="mt-5 text-center text-xs text-ink-700/40 dark:text-white/30">
+              This system has a single owner account, set up by the system administrator.
               Store keepers: your owner creates your account for you.
             </p>
           </div>

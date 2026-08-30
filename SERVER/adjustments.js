@@ -5,7 +5,7 @@ const { logActivity } = require("./utils/activityLogger");
 
 const { requireAuth, requireRole } = require("./auth/middleWare");
 
-router.use(requireAuth, requireRole("storekeeper"));
+router.use("/adjustments", requireAuth, requireRole("storekeeper"));
 
 // GET ADJUSTMENT HISTORY
 router.get("/adjustments", async (req, res) => {

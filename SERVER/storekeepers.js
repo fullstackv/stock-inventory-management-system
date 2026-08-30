@@ -13,7 +13,19 @@ const { logActivity } = require("./utils/activityLogger");
 const { generateTempPassword } = require("./utils/passwordGenerator");
 
 // All routes here are owner-only.
-router.use(requireAuth, requireRole("owner"));
+//
+// IMPORTANT: this must be scoped to the "/storekeepers" path prefix, NOT a
+// bare router.use(requireAuth, requireRole("owner")). server.js mounts every
+// domain router at "/" (e.g. app.use(storekeepersRouter)), and this router is
+// mounted before spares/categories/suppliers/etc. An un-scoped router.use()
+// runs for EVERY request that reaches this router - including ones meant for
+// routes defined in totally different files, like GET /spares - because
+// Express dispatches middleware before it knows whether a later route will
+// match. That was the root cause of storekeepers getting "You don't have
+// permission to perform this action" on every single sidebar page: their
+// requests were being rejected here, by the owner-only gate, before they
+// ever reached spares.js/categories.js/etc.
+router.use("/storekeepers", requireAuth, requireRole("owner"));
 
 // GET all storekeepers this owner has created
 router.get("/storekeepers", async (req, res) => {

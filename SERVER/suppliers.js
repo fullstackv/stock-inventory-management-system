@@ -6,7 +6,7 @@ const { logActivity } = require("./utils/activityLogger");
 
 const { requireAuth, requireRole } = require("./auth/middleWare");
 
-router.use(requireAuth, requireRole("storekeeper"));
+router.use("/suppliers", requireAuth, requireRole("storekeeper"));
 
 // GET ALL SUPPLIERS (with spare counts, scoped to this storekeeper)
 router.get("/suppliers", async (req, res) => {

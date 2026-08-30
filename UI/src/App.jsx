@@ -12,7 +12,6 @@ import StoreKeepers from "./pages/StoreKeepers";
 import ChangePassword from "./pages/ChangePassword";
 import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import Register from "./pages/auth/Register";
 import LandingPage from "./components/LandingPage";
 
 function App() {
@@ -21,7 +20,6 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
         {/* Either role can be here - it's the page that gets a storekeeper
             unblocked on their very first login. */}
         <Route element={<ProtectedRoute />}>

@@ -9,7 +9,7 @@ const ActivityLog = require("./models/ActivityLog");
 
 const { requireAuth, requireRole } = require("./auth/middleWare");
 
-router.use(requireAuth, requireRole("storekeeper"));
+router.use("/analytics", requireAuth, requireRole("storekeeper"));
 
 router.get("/analytics", async (req, res) => {
   try {

@@ -59,7 +59,7 @@ const [scrolled, setScrolled] = useState(false);
               Login
             </Link>
             <Link
-              to="/register"
+              to="/login"
               className="px-4 py-2 bg-gradient-to-r from-brand-600 to-brand-700 rounded-lg"
             >
               Get Started
@@ -92,7 +92,7 @@ const [scrolled, setScrolled] = useState(false);
 
             <div className="mt-8 flex justify-center gap-4">
             <Link
-                to="/register"
+                to="/login"
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-red-600 hover:opacity-90 transition"
             >
                 Get Started
@@ -403,7 +403,6 @@ const [scrolled, setScrolled] = useState(false);
             <h3 className="font-bold mb-3">System</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
               <li>Login</li>
-              <li>Register</li>
               <li>Dashboard</li>
             </ul>
           </div>

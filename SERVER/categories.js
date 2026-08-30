@@ -9,7 +9,7 @@ const { logActivity } = require("./utils/activityLogger");
 // storekeeper accounts via storekeepers.js.
 const { requireAuth, requireRole } = require("./auth/middleWare");
 
-router.use(requireAuth, requireRole("storekeeper"));
+router.use("/categories", requireAuth, requireRole("storekeeper"));
 
 // GET ALL CATEGORIES (with live spare counts, scoped to this storekeeper)
 router.get("/categories", async (req, res) => {
