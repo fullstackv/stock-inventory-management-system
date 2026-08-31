@@ -29,6 +29,11 @@ const start = async () => {
   // unhandled rejection if Mongo was briefly unreachable.
   await connectDB();
 
+  // Required so "secure" cookies are set correctly when running behind a
+  // platform proxy/load balancer (Vercel, Render, Railway, etc.) - without
+  // this, Express can't tell the request was actually HTTPS.
+  app.set("trust proxy", 1);
+
   app.use(express.json());
   app.use(
     cors({
@@ -48,6 +53,13 @@ const start = async () => {
       }),
       cookie: {
         maxAge: 6000 * 60 * 60,
+        // In production the frontend (Vercel) and backend live on different
+        // domains, so the session cookie is cross-site: it needs
+        // sameSite: "none" + secure: true or the browser silently drops it.
+        // Locally both run on http://localhost, where "none" would be
+        // rejected, so this only kicks in for NODE_ENV=production.
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       },
     })
   );

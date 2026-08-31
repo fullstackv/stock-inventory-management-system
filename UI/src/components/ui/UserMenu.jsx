@@ -86,7 +86,7 @@ const UserMenu = ({ user, variant = "header", collapsed = false }) => {
       ) : collapsed ? (
         <button
           onClick={() => setOpen((o) => !o)}
-          className="flex w-full items-center justify-center rounded-xl p-2 transition-colors hover:bg-white/5"
+          className="flex w-full items-center justify-center rounded-xl p-2 transition-colors hover:bg-slate-100 dark:hover:bg-white/5"
           title={user?.names || "Account"}
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-700 to-brand-900 text-sm font-bold text-white">
@@ -96,16 +96,16 @@ const UserMenu = ({ user, variant = "header", collapsed = false }) => {
       ) : (
         <button
           onClick={() => setOpen((o) => !o)}
-          className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-white/5"
+          className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-slate-100 dark:hover:bg-white/5"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-700 to-brand-900 text-sm font-bold text-white">
             {initial}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-white">{user?.names || "User"}</p>
-            <p className="truncate text-xs text-white/40 capitalize">{user?.role || "owner"}</p>
+            <p className="truncate text-sm font-medium text-ink-900 dark:text-white">{user?.names || "User"}</p>
+            <p className="truncate text-xs text-ink-700/50 dark:text-white/40 capitalize">{user?.role || "owner"}</p>
           </div>
-          {open ? <ChevronUp size={15} className="shrink-0 text-white/40" /> : <ChevronDown size={15} className="shrink-0 text-white/40" />}
+          {open ? <ChevronUp size={15} className="shrink-0 text-ink-700/50 dark:text-white/40" /> : <ChevronDown size={15} className="shrink-0 text-ink-700/50 dark:text-white/40" />}
         </button>
       )}
 

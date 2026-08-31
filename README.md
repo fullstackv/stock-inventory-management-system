@@ -1,279 +1,209 @@
-# Stock Inventory Management System (SIMS)
+# SIMS — Stock Inventory Management System
 
-A full-stack web application designed to manage spare parts inventory efficiently. This system replaces manual stock tracking with a secure, real-time digital solution.
+A full-stack inventory management platform for tracking spare parts stock, suppliers, and store keeper activity in real time — built to replace manual, notebook-based stock tracking with a secure, auditable digital system.
 
----
-
-## 🚀 Project Overview
-
-**SIMS (Stock Inventory Management System)** is developed for AutoFix Ltd to:
-
-* Track spare parts in real-time
-* Manage stock-in and stock-out operations
-* Automatically calculate stock value
-* Prevent unauthorized access using secure authentication
+**Live demo:** _add your deployed URL here_
 
 ---
 
-## 🚀 Problem Statement
+## Overview
 
-AutoFix Ltd previously relied on:
+SIMS gives an **owner** full oversight of inventory operations while **store keepers** handle day-to-day stock movement. Every stock-in, stock-out, and adjustment is logged, valued in Rwandan Francs (RWF), and rolled up into dashboards and reports the owner can act on.
 
-* Manual record keeping (notebooks & spreadsheets)
-* No centralized inventory system
-* Untracked stock withdrawals
-* Inaccurate stock reporting
+**Core capabilities**
 
-This resulted in operational inefficiencies and financial losses.
-
----
-
-## ✅ Solution
-
-SIMS provides:
-
-* Real-time inventory tracking
-* Secure login system (session-based authentication)
-* Accurate stock calculations
-* Centralized data management
+- Real-time spare parts inventory with low-stock alerts
+- Stock In / Stock Out / Stock Adjustments, each generating an audit trail
+- Category and supplier management
+- Two-role access model: **Owner** (administration) and **Store Keeper** (operations)
+- Session-based authentication with hashed passwords
+- Dashboard analytics and exportable reports
+- Light/dark theme, fully responsive UI
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Frontend
-
-* React.js
-* Tailwind CSS
-
-### Backend
-
-* Node.js
-* Express.js
-
-### Database
-
-* MySQL
-
-### Authentication
-
-* express-session
-* Cookies
+| Layer | Technology |
+|---|---|
+| Frontend | React 19 (Vite), Tailwind CSS, Framer Motion, React Router, Recharts |
+| Backend | Node.js, Express 5 |
+| Database | MongoDB (MongoDB Atlas) via Mongoose |
+| Auth | express-session + connect-mongo (session store), bcryptjs (password hashing) |
+| Reporting | jsPDF / jsPDF-AutoTable (client-side PDF export) |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
-sims/
+SIMS/
+├── SERVER/                # Backend — Node.js + Express
+│   ├── auth/               # Login, session middleware
+│   ├── models/             # Mongoose schemas
+│   ├── utils/              # Activity logger, password generator
+│   ├── categories.js       # Category routes
+│   ├── suppliers.js        # Supplier routes
+│   ├── spares.js           # Spare parts routes
+│   ├── stock_in.js         # Stock-in routes
+│   ├── stock_out.js        # Stock-out routes
+│   ├── adjustments.js      # Stock adjustment routes
+│   ├── storekeepers.js     # Store keeper management (owner-only)
+│   ├── analytics.js        # Dashboard analytics
+│   ├── reports.js          # Reporting endpoint
+│   ├── db.js               # MongoDB connection
+│   ├── seed.js              # One-time owner account seeding
+│   └── server.js            # App entry point
 │
-├── SERVER/        # Backend (Node.js + Express)
-│   ├── routes/
-│   ├── controllers/
-│   ├── middleWare/
-│   └── conn.js
+├── UI/                    # Frontend — React + Vite
+│   └── src/
+│       ├── api/            # Axios instance
+│       ├── components/     # Layout, shared UI components
+│       ├── context/        # Theme context
+│       ├── pages/          # Route-level pages
+│       ├── routes/         # Route guards
+│       └── utils/          # Helpers
 │
-├── UI/            # Frontend (React)
-│   ├── src/
-│   └── components/
-│
-├── sims.sql       # Database schema
 └── README.md
 ```
 
 ---
 
-## 🔐 Authentication Features
+## Getting Started
 
-* User registration
-* Login with hashed passwords (bcrypt)
-* Session-based authentication
-* Protected routes
-* Logout functionality
+### Prerequisites
 
----
-
-## 📊 Core Features
-
-### 🧩 Spare Management
-
-* Add spare parts
-* Update spare details
-* Delete spare parts
-* View all spares
-
-### 📥 Stock In
-
-* Add stock quantity
-* Update spare quantity automatically
-* Record stock-in history
-
-### 📤 Stock Out
-
-* Remove stock
-* Prevent negative stock
-* Calculate total price dynamically
-* Record stock-out history
-
-### 📈 Dashboard
-
-* Total spare parts
-* Total stock value
-* Stock in/out summaries
-* Recent activities
-
----
-
-## ⚙️ Installation Guide
+- Node.js 18+
+- A MongoDB Atlas cluster (or a local MongoDB instance)
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/fullstackv/stock-inventory-management-system.git
-cd stock-inventory-management-system
+git clone https://github.com/jstackv/stock-inventory-management-system.git
+cd stock-inventory-management-system/SIMS
 ```
 
----
-
-### 2. Setup Backend
+### 2. Backend setup
 
 ```bash
 cd SERVER
 npm install
+cp .env.example .env   # then fill in the real values, see below
 ```
 
+`.env` variables:
 
-Start backend:
+| Variable | Description |
+|---|---|
+| `MONGODB_URI` | MongoDB Atlas (or local) connection string |
+| `SESSION_SECRET` | Long random string used to sign session cookies |
+| `PORT` | Port the API listens on (default `8000`) |
+| `CLIENT_ORIGIN` | Frontend URL allowed by CORS, e.g. `http://localhost:3000` |
+| `OWNER_FULLNAMES` / `OWNER_EMAIL` / `OWNER_PHONE` / `OWNER_PASSWORD` | Used once by `npm run seed` to create the single owner account |
+
+SIMS supports exactly one owner account, created via the seed script rather than public registration:
+
+```bash
+npm run seed
+```
+
+Start the API in dev mode:
 
 ```bash
 npm run dev
 ```
 
----
-
-### 3. Setup Frontend
+### 3. Frontend setup
 
 ```bash
 cd UI
 npm install
+cp .env.example .env   # set VITE_API_URL to your backend URL
 npm run dev
 ```
 
----
-
-### 4. Setup Database
-
-* Import `sims.sql` into MySQL
-* Ensure database name matches `.env`
+The app runs at `http://localhost:3000` by default and expects the API at the URL in `VITE_API_URL` (defaults to `http://localhost:8000`).
 
 ---
 
-## 🔗 API Endpoints
+## API Reference
 
-### 🔐 Authentication
+All endpoints except `/login` require an active session (`requireAuth` middleware).
 
-| Method | Endpoint   | Description        |
-| ------ | ---------- | ------------------ |
-| POST   | /register  | Register user      |
-| POST   | /login     | Login user         |
-| GET    | /dashboard | Get logged-in user |
-| POST   | /logout    | Logout user        |
+### Auth
 
----
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/login` | Log in |
+| POST | `/logout` | Log out |
+| GET | `/dashboard` | Get the logged-in user |
+| PUT | `/change-password` | Change the current user's password |
 
-### 🔩 Spares
+### Store Keepers (owner only)
 
-| Method | Endpoint    | Description      |
-| ------ | ----------- | ---------------- |
-| POST   | /spares     | Create spare     |
-| GET    | /spares     | Get all spares   |
-| GET    | /spares/:id | Get single spare |
-| PUT    | /spares/:id | Update spare     |
-| DELETE | /spares/:id | Delete spare     |
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/storekeepers` | List store keepers |
+| GET | `/storekeepers/overview` | Store keeper summary stats |
+| POST | `/storekeepers` | Create a store keeper |
+| PUT | `/storekeepers/:id` | Update a store keeper |
+| PATCH | `/storekeepers/:id/status` | Activate/deactivate a store keeper |
+| POST | `/storekeepers/:id/reset-password` | Reset a store keeper's password |
+| DELETE | `/storekeepers/:id` | Remove a store keeper |
 
----
+### Spares
 
-### 📥 Stock In
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/spares` | List spares (paginated/filterable) |
+| GET | `/spares/all` | List all spares, unpaginated |
+| POST | `/spares` | Create a spare |
+| PUT | `/spares/:id` | Update a spare |
+| DELETE | `/spares/:id` | Delete a spare |
 
-| Method | Endpoint  | Description           |
-| ------ | --------- | --------------------- |
-| POST   | /stock-in | Add stock             |
-| GET    | /stock-in | View stock-in records |
+### Stock movement
 
----
+| Method | Endpoint | Description |
+|---|---|---|
+| GET / POST | `/stockin` | View / record stock-in |
+| GET / POST | `/stockout` | View / record stock-out |
+| GET / POST | `/adjustments` | View / record stock adjustments |
 
-### 📤 Stock Out
+### Catalog & reporting
 
-| Method | Endpoint   | Description            |
-| ------ | ---------- | ---------------------- |
-| POST   | /stock-out | Remove stock           |
-| GET    | /stock-out | View stock-out records |
-
----
-
-## 🔒 Security Features
-
-* Password hashing using bcrypt
-* Session-based authentication
-* Cookie security
-* Protected backend routes
-* Input validation
-
----
-
-## 🎨 UI/UX Features
-
-* Responsive design
-* Sidebar navigation
-* Dashboard cards
-* Tables for data display
-* Form validation
-* Toast notifications
-* Clean and modern interface
+| Method | Endpoint | Description |
+|---|---|---|
+| GET / POST / PUT / DELETE | `/categories` , `/categories/:id` | Manage categories |
+| GET / POST / PUT / DELETE | `/suppliers` , `/suppliers/:id` | Manage suppliers |
+| GET | `/analytics` | Dashboard analytics |
+| GET | `/reports` | Reporting data |
 
 ---
 
-## 📌 Future Improvements
+## Security
 
-* Role-based access (Admin / Manager)
-* Reports & analytics
-* Export data (PDF/Excel)
-* Notifications system
-* Mobile app version
-
----
-
-## 👨‍💻 Author
-
-**Jean Marie Vianney⚡**
-Trainer at ACODES MUSHISHIRO TSS
+- Passwords hashed with bcrypt, never stored or returned in plain text
+- Session-based authentication with sessions persisted in MongoDB (`connect-mongo`), not in memory
+- Cookies are `secure` + `sameSite=none` in production (cross-domain, HTTPS-only) and `lax` in local dev
+- Owner-only routes are gated server-side, not just hidden in the UI
+- Server-side input validation on write endpoints
 
 ---
 
-## 📬 Submission
+## Deployment
 
-Repository includes:
-
-* Full source code (Frontend + Backend)
-* Database schema (`sims.sql`)
-* README documentation
-
-Trainer Email: **[fullstackv@proton.me](mailto:fullstackv@proton.me)**
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the full step-by-step guide to deploying the frontend to Vercel and the backend to a Node-friendly host.
 
 ---
 
-## ⭐ Acknowledgements
+## Roadmap
 
-This project was developed as part of a **Full-Stack Development Assessment** to demonstrate:
-
-* Backend API development
-* Database design
-* Authentication systems
-* Frontend UI/UX design
-* Full-stack integration
+- Role-based permission granularity beyond owner/store keeper
+- Notification system for low-stock and pending adjustments
+- Mobile app companion
 
 ---
 
-## 📄 License
+## License
 
-This project is for educational purposes only.
+This project is provided for educational and portfolio purposes.

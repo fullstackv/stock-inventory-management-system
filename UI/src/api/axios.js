@@ -4,7 +4,7 @@ import axios from "axios";
 // behavior are defined once instead of being repeated (and risking
 // typos/drift) in every page component.
 const api = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
   withCredentials: true,
 });
 

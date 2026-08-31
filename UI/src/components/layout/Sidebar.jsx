@@ -63,7 +63,7 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen, user }) =
       onClick={() => setMobileOpen(false)}
       className={({ isActive }) =>
         `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200
-         ${isActive ? "text-white" : "text-white/60 hover:text-white hover:bg-white/5"}`
+         ${isActive ? "text-white" : "text-ink-700/60 hover:text-ink-900 hover:bg-slate-100 dark:text-white/60 dark:hover:text-white dark:hover:bg-white/5"}`
       }
     >
       {({ isActive }) => (
@@ -110,8 +110,8 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen, user }) =
       <motion.aside
         animate={{ width: collapsed ? 80 : 260 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-gradient-to-b from-ink-900 via-ink-800 to-ink-900
-          border-r border-white/5 shadow-2xl
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-gradient-to-b dark:from-ink-900 dark:via-ink-800 dark:to-ink-900
+          border-r border-black/5 dark:border-white/5 shadow-2xl
           lg:translate-x-0 lg:static
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300 lg:transition-none`}
       >
@@ -126,7 +126,7 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen, user }) =
                   initial={{ opacity: 0, width: 0 }}
                   animate={{ opacity: 1, width: "auto" }}
                   exit={{ opacity: 0, width: 0 }}
-                  className="font-display text-base font-bold text-white whitespace-nowrap overflow-hidden"
+                  className="font-display text-base font-bold text-ink-900 dark:text-white whitespace-nowrap overflow-hidden"
                 >
                   SIMS
                 </motion.span>
@@ -135,7 +135,7 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen, user }) =
           </div>
           <button
             onClick={() => setMobileOpen(false)}
-            className="rounded-lg p-1.5 text-white/60 hover:bg-white/5 hover:text-white lg:hidden"
+            className="rounded-lg p-1.5 text-ink-700/60 hover:bg-slate-100 hover:text-ink-900 dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white lg:hidden"
           >
             <X size={18} />
           </button>
@@ -145,7 +145,7 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen, user }) =
           {navSections.map((section) => (
             <div key={section.label}>
               {!collapsed && (
-                <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+                <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-ink-700/40 dark:text-white/30">
                   {section.label}
                 </p>
               )}
@@ -158,17 +158,17 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen, user }) =
           ))}
         </nav>
 
-        <div className="hidden border-t border-white/5 p-3 lg:block">
+        <div className="hidden border-t border-black/5 dark:border-white/5 p-3 lg:block">
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-white/50 transition-colors hover:bg-white/5 hover:text-white"
+            className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-ink-700/50 transition-colors hover:bg-slate-100 hover:text-ink-900 dark:text-white/50 dark:hover:bg-white/5 dark:hover:text-white"
           >
             {collapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
             {!collapsed && "Collapse"}
           </button>
         </div>
 
-        <div className="border-t border-white/5 p-3">
+        <div className="border-t border-black/5 dark:border-white/5 p-3">
           <UserMenu user={user} variant="sidebar" collapsed={collapsed} />
         </div>
       </motion.aside>
