@@ -8,7 +8,7 @@ import {
   Package, DollarSign, AlertTriangle, Truck,
   TrendingUp, TrendingDown, Activity, ArrowDownToLine, ArrowUpFromLine, RefreshCw
 } from "lucide-react";
-import { toast } from "sonner";
+import toast from "react-hot-toast"
 import api from "../api/axios";
 import StatCard from "../components/ui/StatCard";
 import { formatFRW } from "../utils/currency";

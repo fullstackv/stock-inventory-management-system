@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus, Search, Pencil, Trash2, Package, ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
-import { toast } from "sonner";
+import toast from "react-hot-toast"
 import api from "../api/axios";
 import Modal from "../components/ui/Modal";
 import ConfirmDialog from "../components/ui/ConfirmDialog";

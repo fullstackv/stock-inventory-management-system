@@ -6,7 +6,7 @@ import {
   FileBarChart2, Download, FileText, ArrowDownToLine, ArrowUpFromLine,
   DollarSign, AlertTriangle, SlidersHorizontal, Filter
 } from "lucide-react";
-import { toast } from "sonner";
+import toast from "react-hot-toast"
 import api from "../api/axios";
 import { formatFRW } from "../utils/currency";
 

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import Dashboard from "./pages/Dashboard";
 import Spares from "./pages/Spares";
@@ -9,7 +9,7 @@ import Categories from "./pages/Categories";
 import Suppliers from "./pages/Suppliers";
 import Reports from "./pages/Reports";
 import StoreKeepers from "./pages/StoreKeepers";
-import ChangePassword from "./pages/ChangePassword";
+import OwnerDashboard from "./pages/OwnerDashboard";
 import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LandingPage from "./components/LandingPage";
@@ -20,14 +20,14 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
-        {/* Either role can be here - it's the page that gets a storekeeper
-            unblocked on their very first login. */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/change-password" element={<ChangePassword />} />
-        </Route>
+        {/* Password changes now happen in a modal from within the app
+            (sidebar / the "still using your temporary password" banner),
+            not a dedicated page. Anyone who still has this URL bookmarked
+            just gets sent home. */}
+        <Route path="/change-password" element={<Navigate to="/" replace />} />
 
         {/* Storekeeper-only: inventory pages. An owner landing here gets
-            bounced to /storekeepers instead of a page full of 403s. */}
+            bounced to /owner-dashboard instead of a page full of 403s. */}
         <Route element={<ProtectedRoute allowedRoles={["storekeeper"]} />}>
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -41,9 +41,10 @@ function App() {
           </Route>
         </Route>
 
-        {/* Owner-only: managing storekeeper accounts. */}
+        {/* Owner-only: dashboard overview + managing storekeeper accounts. */}
         <Route element={<ProtectedRoute allowedRoles={["owner"]} />}>
           <Route element={<Layout />}>
+            <Route path="/owner-dashboard" element={<OwnerDashboard />} />
             <Route path="/storekeepers" element={<StoreKeepers />} />
           </Route>
         </Route>

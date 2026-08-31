@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Truck, Pencil, Trash2, Mail, Phone, MapPin } from "lucide-react";
-import { toast } from "sonner";
+import toast from "react-hot-toast"
 import api from "../api/axios";
 import Modal from "../components/ui/Modal";
 import ConfirmDialog from "../components/ui/ConfirmDialog";

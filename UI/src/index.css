@@ -87,7 +87,7 @@
 
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium text-white
-           bg-gradient-to-r from-brand-600 to-red-500 bg-[length:160%_100%] bg-left
+           bg-gradient-to-r from-brand-600 to-red-600 bg-[length:160%_100%] bg-left
            shadow-glow transition-all duration-300 ease-out
            hover:bg-right hover:shadow-glow-lg hover:-translate-y-0.5
            active:translate-y-0 active:shadow-glow

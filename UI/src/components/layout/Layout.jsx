@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { Outlet, Navigate, Link, useLocation, useOutletContext } from "react-router-dom";
+import { Outlet, Navigate, useLocation, useOutletContext } from "react-router-dom";
 import { ShieldAlert } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import ChangePasswordModal from "../ui/ChangePasswordModal";
 
-const OWNER_HOME = "/storekeepers";
+const OWNER_HOME = "/owner-dashboard";
 const STOREKEEPER_HOME = "/dashboard";
 
 const Layout = () => {
   const { user } = useOutletContext();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const location = useLocation();
 
   if (!user) return null;
@@ -20,10 +22,11 @@ const Layout = () => {
   // immediately instead of briefly mounting Header/Dashboard first -
   // which is what was firing /analytics and /spares requests that the
   // backend correctly rejected with 403 before the redirect could run.
-  if (user.role === "owner" && !location.pathname.startsWith("/storekeepers")) {
+  const isOwnerRoute = location.pathname.startsWith("/storekeepers") || location.pathname.startsWith("/owner-dashboard");
+  if (user.role === "owner" && !isOwnerRoute) {
     return <Navigate to={OWNER_HOME} replace />;
   }
-  if (user.role === "storekeeper" && location.pathname.startsWith("/storekeepers")) {
+  if (user.role === "storekeeper" && isOwnerRoute) {
     return <Navigate to={STOREKEEPER_HOME} replace />;
   }
 
@@ -45,17 +48,18 @@ const Layout = () => {
               <p className="flex-1">
                 You're still using the temporary password your owner gave you. We recommend setting your own.
               </p>
-              <Link
-                to="/change-password"
+              <button
+                onClick={() => setChangePasswordOpen(true)}
                 className="shrink-0 font-semibold underline underline-offset-2 hover:no-underline"
               >
                 Change it now
-              </Link>
+              </button>
             </div>
           )}
           <Outlet context={{ user }} />
         </main>
       </div>
+      <ChangePasswordModal isOpen={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} mustChange={user.mustChangePassword} />
     </div>
   );
 };

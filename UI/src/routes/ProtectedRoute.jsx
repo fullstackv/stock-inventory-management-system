@@ -3,7 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import api from "../api/axios";
 
 // allowedRoles: optional array (e.g. ["storekeeper"] or ["owner"]).
-// Omit it to just require "logged in, any role" (used for /change-password).
+// Every route that uses this component currently passes allowedRoles.
 const ProtectedRoute = ({ allowedRoles }) => {
   // "checking" | "authenticated" | "unauthenticated"
   const [authStatus, setAuthStatus] = useState("checking");
@@ -49,7 +49,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
   // to the page that actually belongs to them instead of letting every
   // API call on the page fail with 403s.
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
-    const fallback = user?.role === "owner" ? "/storekeepers" : "/dashboard";
+    const fallback = user?.role === "owner" ? "/owner-dashboard" : "/dashboard";
     return <Navigate to={fallback} replace />;
   }
 

@@ -43,7 +43,89 @@ router.get("/storekeepers", async (req, res) => {
   }
 });
 
-// CREATE a new storekeeper with an auto-generated temporary password
+// GET /storekeepers/overview - stats for the owner's dashboard. Owners
+// never see inventory data (that's each storekeeper's own, isolated
+// domain) - this is scoped entirely to the accounts the owner manages:
+// how many storekeepers they have, their status breakdown, a 6-month
+// growth trend, and a recent activity feed of owner-level actions
+// (creating/updating/deactivating/deleting storekeepers, resetting
+// passwords, logins, etc).
+router.get("/storekeepers/overview", async (req, res) => {
+  try {
+    const ownerId = req.session.user.id;
+    const now = new Date();
+
+    const [all, recentActivityRaw] = await Promise.all([
+      User.find({ role: "storekeeper", createdBy: ownerId })
+        .select("fullnames email isActive mustChangePassword createdAt")
+        .sort({ createdAt: -1 }),
+      // Owner-level log entries are written with storeKeeper: null, and
+      // logActivity is always called with the currently signed-in owner's
+      // email, so filtering by that email keeps this scoped to just this
+      // owner (relevant now, and if multi-owner support is ever added later).
+      ActivityLog.find({ storeKeeper: null, userEmail: req.session.user.email })
+        .sort({ createdAt: -1 })
+        .limit(10),
+    ]);
+
+    const totalStorekeepers = all.length;
+    const activeCount = all.filter((s) => s.isActive).length;
+    const inactiveCount = totalStorekeepers - activeCount;
+    const pendingSetupCount = all.filter((s) => s.mustChangePassword).length;
+    // Non-overlapping breakdown for the status pie chart: every storekeeper
+    // falls into exactly one bucket (inactive wins over pending-setup if
+    // somehow both are true, e.g. deactivated before ever logging in).
+    const settledActiveCount = all.filter((s) => s.isActive && !s.mustChangePassword).length;
+    const pendingActiveCount = all.filter((s) => s.isActive && s.mustChangePassword).length;
+
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const newThisMonth = all.filter((s) => s.createdAt >= startOfMonth).length;
+
+    // 6-month growth trend: storekeepers created per month.
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const nextD = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+      const label = d.toLocaleDateString("en-US", { month: "short" });
+      const count = all.filter((s) => s.createdAt >= d && s.createdAt < nextD).length;
+      months.push({ month: label, added: count });
+    }
+
+    res.status(200).json({
+      summary: {
+        totalStorekeepers,
+        activeCount,
+        inactiveCount,
+        pendingSetupCount,
+        newThisMonth,
+      },
+      statusBreakdown: {
+        settledActive: settledActiveCount,
+        pendingActive: pendingActiveCount,
+        inactive: inactiveCount,
+      },
+      growthTrend: months,
+      recentStorekeepers: all.slice(0, 5).map((s) => ({
+        id: s._id,
+        fullnames: s.fullnames,
+        email: s.email,
+        isActive: s.isActive,
+        mustChangePassword: s.mustChangePassword,
+        createdAt: s.createdAt,
+      })),
+      recentActivity: recentActivityRaw.map((a) => ({
+        action: a.action,
+        details: a.details,
+        created_at: a.createdAt,
+      })),
+    });
+  } catch (error) {
+    console.error("Fetch owner overview error:", error);
+    res.status(500).json({ error: "Failed to fetch dashboard overview" });
+  }
+});
+
+// CREATE a new storekeeper with a shared default temporary password
 router.post("/storekeepers", async (req, res) => {
   const { fullnames, email, phone } = req.body;
   try {

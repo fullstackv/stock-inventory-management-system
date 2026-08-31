@@ -1,8 +1,12 @@
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 
+// Portalled into <body> for the same reason as Modal.jsx - see the
+// comment there. Without this, a transform left behind by an ancestor's
+// `animate-fade-in` keyframe would clip this under the sticky header.
 const ConfirmDialog = ({ isOpen, onClose, onConfirm, title = "Are you sure?", message, confirmLabel = "Delete", loading = false }) => {
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -40,7 +44,8 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, title = "Are you sure?", me
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

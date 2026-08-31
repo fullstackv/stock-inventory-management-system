@@ -27,9 +27,9 @@ export default {
           950: "#431407",
         },
         ink: {
-          900: "#171112",
-          800: "#241a1c",
-          700: "#332426",
+          900: "#121012",
+          800: "#1c1719",
+          700: "#2b2224",
         },
         surface: {
           DEFAULT: "#faf8f7",
@@ -37,10 +37,16 @@ export default {
         },
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(234,88,12,0.08), 0 8px 24px -8px rgba(234,88,12,0.35)",
-        "glow-lg": "0 20px 50px -12px rgba(234,88,12,0.45)",
+        // Kept intentionally subtle: a soft black shadow does the actual
+        // lifting, with only a faint brand-colored ring for identity -
+        // not a big colored blur behind every panel.
+        glow: "0 0 0 1px rgba(234,88,12,0.06), 0 6px 16px -6px rgba(0,0,0,0.4)",
+        // Used on modals, dropdowns and the login card - purely a soft
+        // black shadow, no brand-color glow, so those panels read as
+        // "lifted off a dark background" rather than "glowing orange".
+        "glow-lg": "0 16px 32px -12px rgba(0,0,0,0.5)",
         card: "0 1px 2px rgba(16,24,40,0.04), 0 1px 3px rgba(16,24,40,0.06)",
-        "card-hover": "0 4px 12px rgba(16,24,40,0.06), 0 12px 32px -8px rgba(234,88,12,0.18)",
+        "card-hover": "0 4px 12px rgba(16,24,40,0.06), 0 10px 24px -10px rgba(0,0,0,0.3)",
       },
       keyframes: {
         "fade-in": {

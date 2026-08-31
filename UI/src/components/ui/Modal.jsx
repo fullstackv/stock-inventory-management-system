@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
@@ -9,7 +10,19 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
     xl: "max-w-4xl",
   };
 
-  return (
+  // Rendered via a portal straight into <body>, NOT in place. Several
+  // pages wrap their content in a div with the `animate-fade-in` class,
+  // which uses a transform-based keyframe animation. Even after that
+  // animation finishes, `animation-fill-mode: both` leaves a computed
+  // `transform: translateY(0)` on the element permanently - and any
+  // non-`none` transform on an ancestor creates a new containing block
+  // for `position: fixed` descendants. Without the portal, this modal's
+  // "fixed inset-0" would be positioned relative to that ancestor
+  // (which starts below the sticky header) instead of the real
+  // viewport, clipping the modal's top edge under the header. Portalling
+  // to document.body sidesteps that entirely, regardless of what any
+  // future ancestor does with transform/filter/etc.
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -46,7 +59,8 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 
