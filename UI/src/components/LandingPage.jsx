@@ -140,6 +140,10 @@ const LandingPage = () => {
   const [contact, setContact] = useState({ name: "", email: "", message: "" });
 
   useEffect(() => {
+    document.title = "SIMS - Stock Inventory Management, Elevated";
+  }, []);
+
+  useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);

@@ -34,8 +34,9 @@ const ProtectedRoute = ({ allowedRoles }) => {
 
   if (authStatus === "checking") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-surface text-ink-700/50 dark:bg-ink-900 dark:text-white/50">
-        Checking session...
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-surface dark:bg-ink-900">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-700/20 border-t-brand-700" />
+        <p className="text-sm text-ink-700/50 dark:text-white/50">Checking session...</p>
       </div>
     );
   }

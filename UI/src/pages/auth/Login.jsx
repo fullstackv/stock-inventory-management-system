@@ -71,6 +71,10 @@ const Login = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
 
+  useEffect(() => {
+    document.title = "Login · SIMS";
+  }, []);
+
   // Small, honest convenience feature: remember the email (never the
   // password) locally so a returning user doesn't have to retype it.
   useEffect(() => {

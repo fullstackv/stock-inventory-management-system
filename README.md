@@ -192,7 +192,7 @@ All endpoints except `/login` require an active session (`requireAuth` middlewar
 
 ## Deployment
 
-See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the full step-by-step guide to deploying the frontend to Vercel and the backend to a Node-friendly host.
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the full step-by-step guide to deploying the backend to Vercel (as a serverless function) and the frontend to Netlify.
 
 ---
 

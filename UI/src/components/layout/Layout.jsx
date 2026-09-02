@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, Navigate, useLocation, useOutletContext } from "react-router-dom";
 import { ShieldAlert } from "lucide-react";
 import Sidebar from "./Sidebar";
@@ -8,12 +8,33 @@ import ChangePasswordModal from "../ui/ChangePasswordModal";
 const OWNER_HOME = "/owner-dashboard";
 const STOREKEEPER_HOME = "/dashboard";
 
+// Owner and store keeper routes never overlap (see App.jsx), so a single
+// path -> title map naturally gives each role its own set of tab titles
+// without needing to branch on user.role separately.
+const PAGE_TITLES = {
+  "/dashboard": "Dashboard",
+  "/spares": "Spare Parts",
+  "/stock-in": "Stock In",
+  "/stock-out": "Stock Out",
+  "/stock-adjustments": "Stock Adjustments",
+  "/categories": "Categories",
+  "/suppliers": "Suppliers",
+  "/reports": "Reports",
+  "/owner-dashboard": "Owner Dashboard",
+  "/storekeepers": "Store Keepers",
+};
+
 const Layout = () => {
   const { user } = useOutletContext();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const page = PAGE_TITLES[location.pathname];
+    document.title = page ? `${page} · SIMS` : "SIMS - Stock Manager";
+  }, [location.pathname]);
 
   if (!user) return null;
 

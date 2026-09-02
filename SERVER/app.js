@@ -66,6 +66,12 @@ app.use(
       // briefly unreachable, before a single request had even come in.
       clientPromise: connectDB().then((m) => m.connection.getClient()),
       collectionName: "sessions",
+      // Without this, connect-mongo re-writes the session doc on *every*
+      // single request just to bump its expiry - turning a read-only
+      // request like GET /dashboard into a read + a write. Since sessions
+      // already last 6 hours, there's no need to re-touch more than once
+      // an hour; this alone removes a full DB round trip from most requests.
+      touchAfter: 60 * 60,
     }),
     cookie: {
       maxAge: 6000 * 60 * 60,
