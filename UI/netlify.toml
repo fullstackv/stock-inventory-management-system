@@ -2,6 +2,23 @@
   command = "npm run build"
   publish = "dist"
 
+# Proxies API calls through this same domain instead of hitting the
+# Vercel backend's own domain directly from the browser. Without this,
+# the session cookie is a *third-party* cookie (frontend and backend are
+# on different domains) - which most browsers allow in a normal tab, but
+# Incognito/Private windows and most mobile browsers block by default.
+# Login would "succeed" (the request itself works) but the cookie never
+# gets stored, so the very next request looks logged-out. Proxying makes
+# every request same-origin from the browser's perspective, so the cookie
+# is first-party and this stops being an issue anywhere.
+# Must come BEFORE the SPA fallback below - redirect rules are matched
+# in order, first match wins.
+[[redirects]]
+  from = "/api/*"
+  to = "https://stockappbackend.vercel.app/:splat"
+  status = 200
+  force = true
+
 # React Router handles routing client-side. Without this, refreshing (or
 # directly opening a link to) any route other than "/" - e.g. /dashboard -
 # hits Netlify's server directly, which has no such file and 404s. This
